@@ -1,0 +1,28 @@
+stages: [deploy]
+
+deploy_dev:
+  stage: deploy
+  tags:
+    - web-senior-dev
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+  variables:
+    DEPLOY_DIR: "/opt/web-senior"
+
+  script:
+    - export PATH="$HOME/.npm-global/bin:$PATH"
+    - echo "== env ==" && whoami && node -v && npm -v && pm2 -v
+
+    - echo "== install & build =="
+    - npm ci
+    - npm run build
+
+    - echo "== deploy rsync =="
+    - rsync -a --delete dist/ "$DEPLOY_DIR/"
+
+    - echo "== pm2 reload (if exists) =="
+    - pm2 list | grep -q "web-senior-dev" && pm2 reload web-senior-dev || echo "pm2 app not found -> skip"
+
+  after_script:
+    - export PATH="$HOME/.npm-global/bin:$PATH"
+    - pm2 status || true
