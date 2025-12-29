@@ -27,11 +27,11 @@
 // export let adminUrlAddr = import.meta.env.VITE_ADMIN_URL;
 
 // 남원 서버용
-export let apiServerAddr = "http://192.168.0.32:8000";
-export let shopUrlAddr = "http://192.168.0.32:8000";
-export let authUrlAddr = "http://192.168.0.32:8000";
-export let mobileUrlAddr = "http://192.168.0.32:8000";
-export let adminUrlAddr = "http://192.168.0.32:8000";
+export let apiServerAddr = "https://docker.dhdx.kr/senioredudev";
+export let shopUrlAddr = "https://docker.dhdx.kr/senioredudev";
+export let authUrlAddr = "https://docker.dhdx.kr/senioredudev";
+export let mobileUrlAddr = "https://docker.dhdx.kr/senioredudev";
+export let adminUrlAddr = "https://docker.dhdx.kr/senioredudev";
 
 // export let shopUrlAddr = "https://docker.dhdx.kr/senioredu";
 // export let authUrlAddr = "https://docker.dhdx.kr/senioredu";
