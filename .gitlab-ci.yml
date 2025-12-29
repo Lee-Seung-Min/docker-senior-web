@@ -14,7 +14,7 @@ deploy_dev:
     - echo "== env ==" && whoami && node -v && npm -v && pm2 -v
 
     - echo "== install & build =="
-    - npm ci
+    - npm install
     - npm run build
 
     - echo "== deploy rsync =="
