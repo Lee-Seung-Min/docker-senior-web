@@ -1,0 +1,6 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 새로운 파란색 원 -->
+  <circle cx="24" cy="24" r="22" fill="#3B57D9" stroke="#3B57D9" stroke-width="2"/>
+  <!-- 더 큰 흰색 체크 표시 -->
+  <path d="M14 24L22 32L36 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,367 @@
+.location > div .notytab_wrap {
+  background: #fff;
+  display: flex;
+  width: 100%;
+}
+
+.location > div .notytab_wrap button {
+  padding: 14px 0;
+  font-size: 1rem;
+  color: #666666;
+  min-width: 33%;
+  border-bottom: 2px solid #ececec;
+}
+
+.location > div .notytab_wrap button + button + button {
+  border-left: 1px solid #ececec;
+}
+
+.location > div .notytab_wrap button.on {
+  color: #15cce4;
+  border-bottom-color: #15cce4;
+}
+
+.contents .setting {
+  float: right;
+}
+
+[class^="bat_"].bat_favpha {
+  border-color: #15cce4;
+  color: #15cce4;
+  vertical-align: top;
+}
+
+[class^="bat_"].bat_favpha::after {
+  content: "단골약국";
+  display: inline-block;
+}
+
+[class^="bat_"].bat_visitpha {
+  border-color: #3079cd;
+  color: #3079cd;
+}
+
+[class^="bat_"].bat_visitpha::after {
+  content: "방문약국";
+  display: inline-block;
+}
+
+[class^="bat_"].bat_favhos {
+  border-color: #15cce4;
+  color: #15cce4;
+  vertical-align: top;
+}
+
+[class^="bat_"].bat_favhos::after {
+  content: "단골병원";
+  display: inline-block;
+}
+
+[class^="bat_"].bat_visithos {
+  border-color: #3079cd;
+  color: #3079cd;
+}
+
+[class^="bat_"].bat_visithos::after {
+  content: "방문병원";
+  display: inline-block;
+}
+
+.z_alert .box_1 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  background-color: white;
+  padding: 15px;
+  border-radius: 7px;
+}
+
+@media (max-width: 780px) {
+  .z_alert .box_1 {
+    min-width: 90%;
+    max-width: 90%;
+  }
+}
+
+@media (min-width: 780px) {
+  .z_alert .box_1 {
+    width: auto;
+    min-width: 60%;
+    max-width: 300px;
+  }
+}
+
+.z_alert .tex {
+  text-align: center;
+  vertical-align: bottom;
+  line-height: 1.2rem;
+  min-height: 50px;
+  margin: 15px 0 0 0;
+  font-size: 1rem;
+}
+
+.z_alert .box_1 .btn_wrap {
+  position: relative;
+  bottom: 0px;
+  width: 100%;
+  height: 10%;
+  text-align: center;
+  margin: 5px auto;
+}
+
+.z_alert {
+  display: display;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  z-index: -1;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.z_alert.show {
+  opacity: 1;
+  z-index: 1000;
+}
+
+.clsbtn {
+  padding-top: 10px;
+  text-align: center;
+}
+
+.contents .search .set {
+  padding: 10px 0px 20px 0px;
+  display: flex;
+}
+
+.contents .search .set .sel {
+  width: 20%;
+  background-color: white;
+  border-style: solid;
+  border-color: #cccccc;
+  border-width: 1px;
+  border-radius: 5px;
+}
+
+.contents .search .set > label {
+  width: 63%;
+  padding: 0px 5px;
+}
+
+.contents .search .set > label .sear {
+  height: 100%;
+  width: 100%;
+  background-color: white;
+  border-style: solid;
+  border-color: #cccccc;
+  border-width: 1px;
+  border-radius: 5px;
+}
+
+.contents .search .set .mbtn_o_5 {
+  width: 17%;
+}
+
+.contents .search {
+  clear: both;
+}
+
+.contents .search .cal {
+  padding: 8px 10px;
+  display: flex;
+  background-color: white;
+  border-style: solid;
+  border-color: #cccccc;
+  border-width: 1px;
+  border-radius: 5px;
+}
+.contents .search .cal .datepicker {
+  width: 48%;
+}
+.map_wrap .search_1 {
+  position: absolute;
+  top: 26px;
+  max-width: 1000px;
+  left: 42.5%;
+  transform: translateX(-50%);
+  box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.3);
+  background-color: #fff;
+  border: 1px solid #cccccc;
+  z-index: 99;
+  border-radius: 4px;
+  height: 50px;
+  width: calc(85% - 50px);
+  color: #cccccc;
+  font-weight: 500;
+  text-align: left;
+  padding: 14px 15px;
+  font-size: 1.125rem;
+}
+
+.map_wrap .search_1::after {
+  content: "";
+  display: block;
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  right: 6px;
+  top: 12px;
+  -webkit-mask: url(../img/icon_search.svg) no-repeat;
+  mask: url(../img/icon_search.svg) no-repeat;
+  -webkit-mask-size: 100%;
+  mask-size: 100%;
+  background: #666;
+}
+
+.map_wrap .fav {
+  z-index: 99;
+  border-radius: 10%;
+  position: absolute;
+  top: 40px;
+  right: 25px;
+  border: 1px;
+  height: 30px;
+  color: #fff;
+  background-color: #0fa5d4;
+}
+
+.map_wrap .fav::before {
+  margin-right: 0;
+  width: 18px;
+  height: 50px;
+  -webkit-mask-size: 100%;
+  mask-size: 100%;
+}
+
+@media (min-width: 1200px) {
+  .map_wrap .fav {
+    top: 26px;
+  }
+}
+
+.contents .btn_wrap [class^="box_pre_"] {
+  padding: 40px 0;
+  font-size: 1.125rem;
+  margin-top: 10px;
+  display: block;
+  text-align: center;
+}
+
+.contents .btn_wrap [class^="box_pre_"]::before {
+  width: 62px;
+  height: 62px;
+  content: "";
+  display: block;
+  margin: 0 auto 17px;
+  background: url(../img/icon_pre_1.svg) no-repeat;
+  background-size: 100%;
+}
+
+.contents .btn_wrap [class^="box_pre_"].box_pre_2::before {
+  background-image: url(../img/icon_pre_2.svg);
+}
+
+.contents .vdodgnscheck {
+  text-align: center;
+  width: auto;
+  height: 4vh;
+}
+
+.contents .vdodgnscheck > button {
+  border: 1px solid #cccccc;
+  border-radius: 50%;
+  height: 100%;
+  margin: 0px 10px;
+}
+
+.contents .vdodgnscheck > button > img {
+  height: 90%;
+}
+
+.toggleSwitch {
+  float: left;
+  left: 65%;
+  width: 40px;
+  height: 20px;
+  display: block;
+  position: relative;
+  border-radius: 20px;
+  background-color: #fff;
+  box-shadow: 0 0 8px 1.5px rgba(0 0 0 / 15%);
+  cursor: pointer;
+}
+
+.toggleSwitch .toggleButton {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 50%;
+  left: 1px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: #c1ccc1;
+}
+
+#toggle:checked ~ .toggleSwitch {
+  background: #01df01;
+}
+
+#toggle:checked ~ .toggleSwitch .toggleButton {
+  left: calc(100% - 20px);
+  background: #03660bb4;
+}
+
+.toggleSwitch,
+.toggleButton {
+  transition: all 0.2s ease-in;
+}
+
+.contents .divTog .txt > p {
+  float: right;
+  right: auto;
+}
+
+.contents .divTog .txt > p ::after {
+  clear: both;
+}
+
+.contents .divTog {
+  padding-bottom: 7%;
+}
+
+.hlthinfo {
+  padding: 3% 0%;
+}
+
+.hlthinfo > span {
+  background-color: red;
+}
+
+[class^="box_"] .ar.box1 button {
+  display: block;
+  margin: 2.5px;
+  float: right;
+}
+
+[class^="box_"] .ar.box2 button {
+  display: block;
+  margin: 3px auto;
+  width: 80px;
+}
+[class^="box_"] .ar.box3 button,
+.ar.box3 span {
+  display: block;
+  margin: 3px auto;
+  text-align: center;
+  width: 69px;
+}
+
+.z_alert .box_1 .info_dl dt {
+  text-align: right;
+  padding-right: 10px;
+}

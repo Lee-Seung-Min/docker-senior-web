@@ -1,0 +1,8 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 원 -->
+  <circle cx="24" cy="24" r="22" fill="red" stroke="red" stroke-width="2"/>
+  <!-- 느낌표 막대기 (간격 조정) -->
+  <line x1="24" y1="10" x2="24" y2="24" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <!-- 느낌표 점 (적절한 간격 띄움) -->
+  <circle cx="24" cy="34" r="3" fill="white"/>
+</svg>
