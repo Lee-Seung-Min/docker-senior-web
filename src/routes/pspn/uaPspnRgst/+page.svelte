@@ -23,8 +23,18 @@
     import { decrypt, encrypt, getEncryptItems } from "$lib/js/aes256";
     import { chngDateTimeSecondsFormat } from "$lib/js/dateFunction";
     import { drcpPspnId } from "$lib/store/pspnStore.js";
+    import { getUserId } from "$lib/js/getUserId";
+    import { getFetch } from "$lib/js/getFetch";
+    import { updateRefresh } from "$lib/js/updateRefresh";
 
     let drstList = [];
+    let jwt = "";
+
+    let favPopUp = false;
+    let favShpId = null;
+    let favNowYon = "N"; // 클릭한 약국의 현재 즐겨찾기 상태
+    let mbrId = 0;
+
     let favDrst = [];
     let popUp = false;
     let popUp2 = false;
@@ -43,12 +53,26 @@
     let encDistance;
     let encryptItems = [];
 
+    let imgPopUp = false;
+    let imgSrc = "";      // blob URL
+    let imgTitle = "";
+    let imgLoading = false;
+
     onMount(async () => {
         $footCheck = "menu2";
         $searchType = "P";
+        jwt = localStorage.getItem("userJwt") ?? "";
+        if (jwt) {
+            try {
+            mbrId = await getUserId(jwt); // getUserId.js 사용
+            console.log("mbrId =", mbrId);
+            } catch (e) {
+            console.log("getUserId 실패:", e);
+            mbrId = 0;
+            }
+        }
 
         search();
-
         // searchMount.subscribe((value) => {
         //   if (value && isFirstSearch) {
         //     console.log(111);
@@ -136,6 +160,78 @@
         } catch (error) {}
     }
 
+    function openFavPopup(drst) {
+        favShpId = drst.shpId;
+        favNowYon = drst.favorite ? "Y" : "N";
+        favPopUp = true;
+    }
+
+    async function confirmFav() {
+        const favType = "D";
+
+        const jsonStr = makeStr({ shpId: favShpId, mbrId, favType });
+        const url =
+            mobileUrlAddr + (favNowYon === "Y"
+            ? "/v1/favShop/delFav"
+            : "/v1/favShop/addFav"
+            );
+
+        const res = await postAPI(url, jsonStr, jwt);
+
+        if (res?.resultVO === true) {
+            favPopUp = false;
+            drstList = drstList.map(d =>
+            d.shpId === favShpId ? { ...d, shpFavYon: favNowYon === "Y" ? "N" : "Y" } : d
+            );
+        }
+
+        window.location.reload();
+    }
+
+    function closeFavPopup() {
+        favPopUp = false;
+    }
+
+    async function openImagePopup(drst) {
+        imgTitle = drst?.shpName ?? "이미지";
+        imgPopUp = true;
+        imgLoading = true;
+
+        if (imgSrc) URL.revokeObjectURL(imgSrc);
+        imgSrc = "";
+
+        try {
+            const url = `${shopUrlAddr}/v1/Shop/ext/getShopImage?shpId=${drst.shpId}`; 
+
+            let token = localStorage.getItem("userJwt") ?? "";
+            let res = await getFetch(url, token);
+            console.log("res : ", res);
+
+            if (res.status === 401) {
+            await updateRefresh();
+            token = localStorage.getItem("userJwt") ?? "";
+            res = await getFetch(url, token);
+            }
+
+           if (!res.ok) {
+            const msg = await res.text().catch(() => "");
+            throw new Error(`image fetch failed: ${res.status} ${msg}`);
+           }
+           const blob = await res.blob();
+           imgSrc = URL.createObjectURL(blob);
+       } catch (e) {
+           console.log(e);
+       } finally {
+           imgLoading = false;
+       }
+    }
+
+    function closeImagePopup() {
+        imgPopUp = false;
+        if (imgSrc) URL.revokeObjectURL(imgSrc);
+        imgSrc = "";
+    }
+
     //페이징 처리 추가 데이터 불러 올 수 있게
     // async function loadMoreData() {
     //   shpPage += 1;
@@ -199,6 +295,24 @@
             {#each drstList as drst}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div class="box_1">
+                    <div class="top_actions">
+                    <button
+                        type="button"
+                        class="img_btn"
+                        aria-label="이미지 보기"
+                        on:click|stopPropagation={() => openImagePopup(drst)}
+                    >
+                        <i class="xi-image-o"></i>
+                    </button>
+                    <button
+                        type="button"
+                        class="fav_btn"
+                        aria-label="즐겨찾기"
+                        on:click|stopPropagation={() => openFavPopup(drst)}
+                        >
+                        <span class={drst.favorite === true ? "mark_on" : "mark_off"}></span>
+                    </button>
+                    </div>
                     <div class="pspnLst">
                         <p class="name">
                             {drst.shpName}
@@ -236,6 +350,48 @@
     <!-- <div bind:this={sentinel} /> -->
 </section>
 
+{#if favPopUp}
+  <PopUp popUp={favPopUp}>
+    <slot>
+      {favNowYon === "Y" ? "즐겨찾기를 해제하시겠습니까?" : "즐겨찾기에 추가하시겠습니까?"}
+      <button type="button" class="alert_close" on:click={closeFavPopup}>
+        <i class="xi-close-min" />
+      </button>
+    </slot>
+
+    <p slot="btns" class="btn_wrap">
+      <button type="button" class="mbtn_n_4" on:click={confirmFav}>예</button>
+      <button type="button" class="mbtn_n_9" on:click={closeFavPopup}>아니오</button>
+    </p>
+  </PopUp>
+{/if}
+
+{#if imgPopUp}
+  <PopUp popUp={imgPopUp}>
+    <slot>
+      <p>{imgTitle}</p>
+      <button type="button" class="alert_close" on:click={closeImagePopup}>
+        <i class="xi-close-min" />
+      </button>
+    </slot>
+
+    <div class="img_wrap">
+        {#if imgLoading}
+            <div class="img_loading">로딩중...</div>
+        {:else if imgSrc}
+            <img class="popup_img" src={imgSrc} alt={imgTitle} />
+        {:else}
+            <div class="img_empty">이미지가 없습니다.</div>
+        {/if}
+    </div>
+
+    <p slot="btns" class="btn_wrap">
+      <button type="button" class="mbtn_n_4" on:click={closeImagePopup}>닫기</button>
+    </p>
+  </PopUp>
+{/if}
+
+
 <PopUp popUp={popUp2}>
     <slot>
         <p>처방전이 전송되었습니다.<br />처방 목록 페이지로 이동합니다.</p>
@@ -245,3 +401,67 @@
     </p>
     <p />
 </PopUp>
+
+
+<style>
+.box_1 { position: relative; }
+
+/* 우측 상단: 이미지 + 즐겨찾기 나란히 */
+.top_actions{
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+.img_btn, .fav_btn{
+  width: 35px;
+  height: 35px;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+/* 이미지 아이콘 크기 */
+.img_btn i{
+  font-size: 28px;
+  color: #0fa5d4;
+}
+
+.fav_btn .mark_on,
+.fav_btn .mark_off{
+  width: 100%;
+  height: 100%;
+  display: block;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+.pspnLst{
+  padding-right: 100px;
+}
+
+.img_wrap{
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;            /* 혹시라도 더 크면 내부 스크롤 */
+}
+
+.popup_img{
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;       /* 팝업 안에 “전부 보이게” */
+  display: block;
+}
+
+</style>

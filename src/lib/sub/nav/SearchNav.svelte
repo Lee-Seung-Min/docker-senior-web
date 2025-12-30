@@ -219,14 +219,14 @@
     </form>
   </div>
   {#if $searchType === "D"}
-    <button
+    <!-- <button
       type="button"
       title="지도로"
       class="mbtn_i_map fix_br"
       on:click={() => {
         goto(urlList.uaDrstSrchMap);
       }}
-    />
+    /> -->
   {:else if $searchType === "H"}
     <button
       type="button"

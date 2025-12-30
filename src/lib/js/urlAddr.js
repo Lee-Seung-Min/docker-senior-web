@@ -26,13 +26,19 @@
 // export let mobileUrlAddr = import.meta.env.VITE_MOBILE_URL;
 // export let adminUrlAddr = import.meta.env.VITE_ADMIN_URL;
 
-// 남원 서버용
-export let apiServerAddr = "https://docker.dhdx.kr/senioredudev";
+// 남원 로컬개발용
+// export let shopUrlAddr = "http://localhost:9000";
+// export let authUrlAddr = "http://localhost:9000";
+// export let mobileUrlAddr = "http://localhost:9000";
+// export let adminUrlAddr = "http://localhost:9000";
+
+//남원 테스트서버용
 export let shopUrlAddr = "https://docker.dhdx.kr/senioredudev";
 export let authUrlAddr = "https://docker.dhdx.kr/senioredudev";
 export let mobileUrlAddr = "https://docker.dhdx.kr/senioredudev";
 export let adminUrlAddr = "https://docker.dhdx.kr/senioredudev";
 
+// 남원 배포서버용
 // export let shopUrlAddr = "https://docker.dhdx.kr/senioredu";
 // export let authUrlAddr = "https://docker.dhdx.kr/senioredu";
 // export let mobileUrlAddr = "https://docker.dhdx.kr/senioredu";
