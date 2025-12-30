@@ -6,10 +6,12 @@
     import { urlList } from "$lib/urlList";
     import PopUp from "$lib/sub/nav/PopUp.svelte";
     import { getCall, goMap } from "$lib/js/phoneAction";
+    import { isLogin } from "$lib/store/loginStore";
 
     let popUp = false;
     let popUpWhat = "";
     let callNumber = "02-3487-8585";
+
     function gotoPage(url) {
         goto(url);
     }
@@ -37,9 +39,12 @@
             window.AndroidBridge.logout();
         } else {
             alert("로그아웃 되었습니다.");
+            
             localStorage.setItem("userJwt", "");
             localStorage.setItem("refreshJwt", "");
             localStorage.setItem("logintool", "");
+
+            isLogin.set(false);
             goto(urlList.uaLogin);
         }
     }
