@@ -32,6 +32,8 @@
 // export let mobileUrlAddr = "http://localhost:9000";
 // export let adminUrlAddr = "http://localhost:9000";
 
+export let apiServerAddr = "https://docker.dhdx.kr/senioredudev";
+
 //남원 테스트서버용
 export let shopUrlAddr = "https://docker.dhdx.kr/senioredudev";
 export let authUrlAddr = "https://docker.dhdx.kr/senioredudev";
