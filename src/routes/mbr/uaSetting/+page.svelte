@@ -62,7 +62,7 @@
             <span class="menuSpan">회원정보 수정</span>
         </button>
         <button type="button" class="box_2" on:click={() => registerFace()}>
-            <i class="xi-user-o" />
+            <i class="xi-camera-o" />
             <span class="menuSpan">안면인식 등록</span>
         </button>
         <button
@@ -91,7 +91,7 @@
             class="box_2"
             on:click={() => gotoPage(urlList.uaAlarmAgree)}
         >
-            <i class="xi-bell-o" />
+            <i class="xi-document" />
             <span class="menuSpan">동의서 관리</span>
         </button>
         <button
