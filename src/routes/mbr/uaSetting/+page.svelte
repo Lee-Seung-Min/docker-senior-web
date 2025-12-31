@@ -104,16 +104,6 @@
                 >서비스 이용약관</span
             ></button
         >
-        <button
-            type="button"
-            class="box_2"
-            on:click={() => {
-                popUp = true;
-                popUpWhat = "call";
-            }}
-            ><i class="xi-phone" />
-            <span class="menuSpan">고객센터</span></button
-        >
         <button type="button" class="box_2" on:click={() => logout()}>
             <i class="xi-user-o" />
             <span class="menuSpan">로그아웃</span>
