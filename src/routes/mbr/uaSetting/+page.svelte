@@ -92,7 +92,7 @@
             on:click={() => gotoPage(urlList.uaAlarmAgree)}
         >
             <i class="xi-bell-o" />
-            <span class="menuSpan">알람 및 동의 설정</span>
+            <span class="menuSpan">동의서 관리</span>
         </button>
         <button
             type="button"

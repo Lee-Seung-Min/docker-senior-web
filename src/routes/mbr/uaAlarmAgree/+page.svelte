@@ -24,9 +24,9 @@
   let marketing = false;
   let person = false;
 
-   function gotoPage(url) {
-        goto(url);
-    }
+  function gotoPage(url) {
+    goto(url);
+  }
 
   /**
    * 약관 동의 관련 리스트
@@ -138,14 +138,14 @@
   }
 </script>
 
-<Nav>약 대리수령 및 동의 설정</Nav>
+<Nav>동의서 관리</Nav>
 <section class="contents">
   <div class="list_box" id="alatm_wrap">
-    <div class="box_1 cursor-pointer">
-      <div
-        class="flex justify-between"
-        on:click={() => gotoPage(urlList.consents)}
-      >
+    <div
+      class="box_1 cursor-pointer"
+      on:click={() => gotoPage(urlList.consents)}
+    >
+      <div class="flex justify-between">
         <p class="tit">약 대리수령 위임장 관리</p>
         <i class="xi-angle-right"></i>
       </div>
@@ -155,10 +155,6 @@
       <label>
         이용자는 개인정보 제3자 제공 동의에 관해 거부할 권리가 있으며, 미동의
         시에는 모바일 접수/예약 서비스 이용이 불가 합니다.<br />
-        <a
-          href="https://sites.google.com/view/barodoctor-privacy-policy/%ED%99%88"
-          style="color: blue;">[약관 링크]</a
-        >
         <input
           type="checkbox"
           class="type2"
