@@ -21,12 +21,12 @@
       on:click={() => goto(urlList.privacyTerms)}
       >개인정보 처리방침
     </button>
-    <button
+    <!-- <button
       type="button"
       class="box_2"
       id="show_reg"
       on:click={() => goto(urlList.locationTerms)}
       >위치기반 서비스 이용약관
-    </button>
+    </button> -->
   </div>
 </section>
