@@ -42,7 +42,7 @@
 
     let favPopUp = false;
     let favShpId = null;
-    let favNowYon = "N"; // 클릭한 약국의 현재 즐겨찾기 상태
+    let favNowYon = "N";
     let mbrId = 0;
 
     let favDrst = [];
@@ -55,6 +55,7 @@
     let isFirstSearch = true;
     let week = 0;
     let isLoading = true;
+
     // Intersection Observer 설정
     let sentinel;
     let observer;
@@ -63,10 +64,21 @@
     let encDistance;
     let encryptItems = [];
 
-    let imgPopUp = false;
+    // ✅ 이미지 모달 상태 (open으로만 제어)
+    let open = false;
     let imgSrc = ""; // blob URL
     let imgTitle = "";
     let imgLoading = false;
+
+    // ✅ 배경 클릭 시 닫기 (리소스 정리까지)
+    function onBackdropClick() {
+        closeImagePopup();
+    }
+
+    // ✅ 모달 내부 클릭 전파 막기
+    function stop(e) {
+        e.stopPropagation();
+    }
 
     onMount(async () => {
         $footCheck = "menu2";
@@ -74,26 +86,20 @@
         jwt = localStorage.getItem("userJwt") ?? "";
         if (jwt) {
             try {
-                mbrId = await getUserId(jwt); // getUserId.js 사용
+                mbrId = await getUserId(jwt);
             } catch (e) {
-                console.log("getUserId 실패:", e);
                 mbrId = 0;
             }
         }
 
         search();
     });
-    //팝업 닫기
-    function xButton() {
-        popUp = false;
-    }
-
+    
     function close() {
         popUp2 = false;
         goto(urlList.uaPspnLst);
     }
 
-    //거리 구하기
     function distance(e) {
         if (e >= 1000) {
             return (e / 1000).toString().slice(0, 4) + "km";
@@ -101,7 +107,7 @@
             return e + "m";
         }
     }
-    //검색
+
     async function search() {
         noMore = true;
         isLoading = true;
@@ -113,23 +119,19 @@
         noMore = false;
         isLoading = false;
     }
-    //자식 컴포넌트에서 이벤트 발생 시 함수 실행
+
     const searchDrst = (event) => search();
 
     function isTimeBetween(startTime, endTime) {
         const now = new Date();
-
         const h = String(now.getHours()).padStart(2, "0");
         const m = String(now.getMinutes()).padStart(2, "0");
         const s = String(now.getSeconds()).padStart(2, "0");
         const currentTime = `${h}:${m}:${s}`;
 
-        //비교 로직
         if (startTime <= endTime) {
-            //현재 시간이 시작 시간보다 크고, 끝 시간보다 작아야 함(예: 09:00 ~ 18:00)
             return currentTime >= startTime && currentTime <= endTime;
         } else {
-            //현재 시간이 시작 시간보다 크거나, 끝 시간보다 작으면 됨(예: 22:00 ~ 02:00)
             return currentTime >= startTime || currentTime <= endTime;
         }
     }
@@ -190,9 +192,11 @@
         favPopUp = false;
     }
 
+    // ✅ 이미지 모달 열기 + 이미지 fetch
     async function openImagePopup(drst) {
+        open = true;
+
         imgTitle = drst?.shpName ?? "이미지";
-        imgPopUp = true;
         imgLoading = true;
 
         if (imgSrc) URL.revokeObjectURL(imgSrc);
@@ -214,6 +218,7 @@
                 const msg = await res.text().catch(() => "");
                 throw new Error(`image fetch failed: ${res.status} ${msg}`);
             }
+
             const blob = await res.blob();
             imgSrc = URL.createObjectURL(blob);
         } catch (e) {
@@ -223,14 +228,16 @@
         }
     }
 
+    // ✅ 닫기 (모달 + blob url 해제)
     function closeImagePopup() {
-        imgPopUp = false;
+        open = false;
         if (imgSrc) URL.revokeObjectURL(imgSrc);
         imgSrc = "";
+        imgLoading = false;
     }
 </script>
 
-<SearchNav bind:lat bind:lon on:searchDrst={searchDrst} />
+<Nav>약국 지정</Nav>
 
 <section class="contents">
     <div class="list_box" id="pre_list">
@@ -250,33 +257,30 @@
                             {#if drst.favorite}
                                 <i
                                     class="xi-star"
-                                    style="background-color: white; padding: 0;"
+                                    style="background-color: transparent; color: #ffd966; padding: 0; margin: 0; font-size: 24px;"
                                 ></i>
                             {:else}
                                 <i
                                     class="xi-star-o"
-                                    style="background-color: white; padding: 0;"
+                                    style="background-color: transparent; color: #ffd966; padding: 0; margin: 0; font-size: 24px;"
                                 ></i>
                             {/if}
                         </button>
                     </div>
                     <div class="pspnLst">
                         <p class="name">
-                            {drst.shpName}
-                            <button
-                                type="button"
-                                aria-label="이미지 보기"
+                            <span
+                                class="cursor-pointer"
+                                style="margin: 0"
                                 on:click|stopPropagation={() =>
                                     openImagePopup(drst)}
                             >
-                                <i
-                                    class="xi-image-o"
-                                    style="background-color: white; padding: 0 4px;"
-                                ></i>
-                            </button>
+                                {drst.shpName}
+                                <i class="xi-image-o" style="padding: 4px"></i>
+                            </span>
                         </p>
 
-                        <p class="dept">
+                        <p class="dept" style="padding-top: 6px;">
                             {drst.sdtlAddr} | {drst.distance.toFixed(2)} km
                         </p>
                         <p class="time">
@@ -294,14 +298,14 @@
                     {#if drst.isWorkDayOfWeek == "1" && isTimeBetween(drst.startTime, drst.endTime)}
                         <button
                             type="button"
+                            class="send-btn"
                             on:click|stopPropagation={() => {
                                 if (drst.isWorkDayOfWeek == "1") {
                                     sendFax(drst.sdtlFax);
                                 } else {
                                     popUp = true;
                                 }
-                            }}
-                            class="btn_01">처방전 보내기</button
+                            }}>처방전 보내기</button
                         >
                     {/if}
                 </div>
@@ -335,35 +339,33 @@
     </PopUp>
 {/if}
 
-{#if imgPopUp}
-    <PopUp popUp={imgPopUp}>
-        <slot>
-            <p>{imgTitle}</p>
-            <button
-                type="button"
-                class="alert_close"
-                on:click={closeImagePopup}
-            >
-                <i class="xi-close-min" />
-            </button>
-        </slot>
+{#if open}
+    <div class="modal-backdrop" on:click={onBackdropClick}>
+        <div class="modal-panel" on:click={stop}>
+            <div class="modal-header">
+                <p class="modal-title">{imgTitle}</p>
+                <button
+                    type="button"
+                    class="icon-btn"
+                    on:click={closeImagePopup}
+                >
+                    <i class="xi-close-min" />
+                </button>
+            </div>
 
-        <div class="img_wrap">
-            {#if imgLoading}
-                <div class="img_loading">로딩중...</div>
-            {:else if imgSrc}
-                <img class="popup_img" src={imgSrc} alt={imgTitle} />
-            {:else}
-                <div class="img_empty">이미지가 없습니다.</div>
-            {/if}
+            <div class="img_wrap">
+                {#if imgLoading}
+                    <div class="img_loading">로딩중...</div>
+                {:else if imgSrc}
+                    <img class="popup_img" src={imgSrc} alt={imgTitle} />
+                {:else}
+                    <div class="img_empty">이미지가 없습니다.</div>
+                {/if}
+            </div>
+
+            <div class="modal-footer"></div>
         </div>
-
-        <p slot="btns" class="btn_wrap">
-            <button type="button" class="mbtn_n_4" on:click={closeImagePopup}
-                >닫기</button
-            >
-        </p>
-    </PopUp>
+    </div>
 {/if}
 
 <PopUp popUp={popUp2}>
@@ -397,12 +399,23 @@
         z-index: 2;
     }
 
+    .send-btn {
+        background-color: #0fa5d4;
+        width: 100%;
+        padding: 10px 0;
+        border-radius: 6px;
+        color: white;
+        font-weight: 500;
+        margin: 20px 0 8px 0;
+    }
+
     .pspnLst {
         padding-right: 100px;
     }
 
     .img_wrap {
         margin: 0 auto;
+        padding: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -411,10 +424,64 @@
 
     .popup_img {
         max-width: 100%;
-        max-height: 100%;
         width: auto;
+        margin: 8px 0;
         height: auto;
+        border-radius: 8px;
         object-fit: contain; /* 팝업 안에 “전부 보이게” */
         display: block;
+    }
+
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7); /* 검은색 투명 배경 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 16px;
+    }
+
+    .modal-panel {
+        background: #fff; /* 하얀색 배경 */
+        border-radius: 10px;
+        max-width: 560px; /* 이미지보다 약간 크게 보이게 */
+        width: 100%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .modal-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 800;
+    }
+
+    .icon-btn {
+        font-size: 24px;
+        background: transparent;
+        border: none;
+        padding: 6px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .icon-btn:hover {
+        background: rgba(0, 0, 0, 0.06);
+    }
+
+    .modal-footer {
+        padding: 12px 16px 16px;
+        display: flex;
+        justify-content: center;
     }
 </style>
