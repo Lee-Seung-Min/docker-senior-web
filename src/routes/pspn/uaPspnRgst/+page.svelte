@@ -11,10 +11,20 @@
     import { postAPI } from "$lib/js/postAPI";
     import { page } from "$app/stores";
     import { footCheck } from "$lib/store/navStore.js";
-    import { shopUrlAddr, authUrlAddr, adminUrlAddr, mobileUrlAddr } from "$lib/js/urlAddr";
+    import {
+        shopUrlAddr,
+        authUrlAddr,
+        adminUrlAddr,
+        mobileUrlAddr,
+    } from "$lib/js/urlAddr";
     import { drcpShpId } from "$lib/store/pspnStore.js";
     import SearchNav from "$lib/sub/nav/SearchNav.svelte";
-    import { searchType, searchData, searchWhat, searchMount } from "$lib/store/search";
+    import {
+        searchType,
+        searchData,
+        searchWhat,
+        searchMount,
+    } from "$lib/store/search";
     import { pharmacyData } from "$lib/store/pharmacyData";
     import PageLoader from "$lib/sub/PageLoader.svelte";
     import { getOsType } from "$lib/js/phoneAction";
@@ -54,7 +64,7 @@
     let encryptItems = [];
 
     let imgPopUp = false;
-    let imgSrc = "";      // blob URL
+    let imgSrc = ""; // blob URL
     let imgTitle = "";
     let imgLoading = false;
 
@@ -64,32 +74,14 @@
         jwt = localStorage.getItem("userJwt") ?? "";
         if (jwt) {
             try {
-            mbrId = await getUserId(jwt); // getUserId.js 사용
-            console.log("mbrId =", mbrId);
+                mbrId = await getUserId(jwt); // getUserId.js 사용
             } catch (e) {
-            console.log("getUserId 실패:", e);
-            mbrId = 0;
+                console.log("getUserId 실패:", e);
+                mbrId = 0;
             }
         }
 
         search();
-        // searchMount.subscribe((value) => {
-        //   if (value && isFirstSearch) {
-        //     console.log(111);
-
-        //     week = getWeekOfMonth(new Date()) - 1;
-        //     isFirstSearch = false; // 첫 번째 검색 후에는 다음 검색을 막음
-        //     observer = new IntersectionObserver((entries) => {
-        //       if (entries[0].isIntersecting) {
-        //         // 스크롤이 일정 위치에 도달하면 추가 데이터 불러오기
-        //         if (!noMore) {
-        //           loadMoreData();
-        //         }
-        //       }
-        //     });
-        //     if (sentinel) observer.observe(sentinel);
-        //   }
-        // });
     });
     //팝업 닫기
     function xButton() {
@@ -113,19 +105,16 @@
     async function search() {
         noMore = true;
         isLoading = true;
-        console.log("search1!!");
-        console.log(lat, lon);
-        let url = authUrlAddr + "/v1/ppds/ext/distanceToPharm?ppdsId=" + $drcpPspnId;
+
+        let url =
+            authUrlAddr + "/v1/ppds/ext/distanceToPharm?ppdsId=" + $drcpPspnId;
         drstList = await getAPI(url);
-        console.log(drstList);
+
         noMore = false;
         isLoading = false;
     }
     //자식 컴포넌트에서 이벤트 발생 시 함수 실행
-    const searchDrst = (event) => {
-        console.log("searchDrst");
-        search();
-    };
+    const searchDrst = (event) => search();
 
     function isTimeBetween(startTime, endTime) {
         const now = new Date();
@@ -147,12 +136,21 @@
 
     async function sendFax(faxNumber) {
         let newFaxNum = faxNumber.replace(/-/g, "");
-        let url = shopUrlAddr + "/webfax/sendFax?pspnId=" + $drcpPspnId + "&toNumber=" + newFaxNum;
+        let url =
+            shopUrlAddr +
+            "/webfax/sendFax?pspnId=" +
+            $drcpPspnId +
+            "&toNumber=" +
+            newFaxNum;
 
         try {
             isLoading = true;
-            const result = await postAPI(url, null, localStorage.getItem("userJwt"));
-            console.log(result);
+            const result = await postAPI(
+                url,
+                null,
+                localStorage.getItem("userJwt"),
+            );
+
             if (result.code == 0) {
                 isLoading = false;
                 popUp2 = true;
@@ -171,17 +169,17 @@
 
         const jsonStr = makeStr({ shpId: favShpId, mbrId, favType });
         const url =
-            mobileUrlAddr + (favNowYon === "Y"
-            ? "/v1/favShop/delFav"
-            : "/v1/favShop/addFav"
-            );
+            mobileUrlAddr +
+            (favNowYon === "Y" ? "/v1/favShop/delFav" : "/v1/favShop/addFav");
 
         const res = await postAPI(url, jsonStr, jwt);
 
         if (res?.resultVO === true) {
             favPopUp = false;
-            drstList = drstList.map(d =>
-            d.shpId === favShpId ? { ...d, shpFavYon: favNowYon === "Y" ? "N" : "Y" } : d
+            drstList = drstList.map((d) =>
+                d.shpId === favShpId
+                    ? { ...d, shpFavYon: favNowYon === "Y" ? "N" : "Y" }
+                    : d,
             );
         }
 
@@ -201,29 +199,28 @@
         imgSrc = "";
 
         try {
-            const url = `${shopUrlAddr}/v1/Shop/ext/getShopImage?shpId=${drst.shpId}`; 
+            const url = `${shopUrlAddr}/v1/Shop/ext/getShopImage?shpId=${drst.shpId}`;
 
             let token = localStorage.getItem("userJwt") ?? "";
             let res = await getFetch(url, token);
-            console.log("res : ", res);
 
             if (res.status === 401) {
-            await updateRefresh();
-            token = localStorage.getItem("userJwt") ?? "";
-            res = await getFetch(url, token);
+                await updateRefresh();
+                token = localStorage.getItem("userJwt") ?? "";
+                res = await getFetch(url, token);
             }
 
-           if (!res.ok) {
-            const msg = await res.text().catch(() => "");
-            throw new Error(`image fetch failed: ${res.status} ${msg}`);
-           }
-           const blob = await res.blob();
-           imgSrc = URL.createObjectURL(blob);
-       } catch (e) {
-           console.log(e);
-       } finally {
-           imgLoading = false;
-       }
+            if (!res.ok) {
+                const msg = await res.text().catch(() => "");
+                throw new Error(`image fetch failed: ${res.status} ${msg}`);
+            }
+            const blob = await res.blob();
+            imgSrc = URL.createObjectURL(blob);
+        } catch (e) {
+            console.log(e);
+        } finally {
+            imgLoading = false;
+        }
     }
 
     function closeImagePopup() {
@@ -231,57 +228,6 @@
         if (imgSrc) URL.revokeObjectURL(imgSrc);
         imgSrc = "";
     }
-
-    //페이징 처리 추가 데이터 불러 올 수 있게
-    // async function loadMoreData() {
-    //   shpPage += 1;
-    //   const url = shopUrlAddr + "/v1/ppds/getPharmacyList";
-    //   let jsonStr = getSearchJson();
-    //   let resData = await postAPI(url, jsonStr);
-    //   let newData = resData.resultVO;
-    //   if (newData.length == 0) {
-    //     noMore = true;
-    //   }
-    //   console.log(newData);
-    //   drstList = [...drstList, ...newData];
-    // }
-    //검색 json
-    // function getSearchJson() {
-    //   if ($listUserLocation) {
-    //     return makeStr({
-    //       encCoordinateY: encShpLati,
-    //       encCoordinateX: encShpLongi,
-    //       encDistance,
-    //       paging: shpPage,
-    //       locOs: getOsType(),
-    //       locUseDttm: chngDateTimeSecondsFormat(new Date()),
-    //       locUse: true,
-    //     });
-    //   } else {
-    //     return makeStr({
-    //       encCoordinateY: encShpLati,
-    //       encCoordinateX: encShpLongi,
-    //       encDistance,
-    //       paging: shpPage,
-    //       locUse: false,
-    //     });
-    //   }
-    // }
-    // function getWeekOfMonth(date) {
-    //   var firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-    //   var firstDayOfWeek = firstDayOfMonth.getDay() === 0 ? 7 : firstDayOfMonth.getDay();
-    //   var offsetDate = date.getDate() + firstDayOfWeek - 1;
-    //   return Math.ceil(offsetDate / 7);
-    // }
-    // function getLaucnTime(e) {
-    //   let openTime = "";
-    //   if (e.startTime != null && e.startTime != "") {
-    //     openTime = e.startTime.slice(0, 5) + " ~ " + e.endTime.slice(0, 5);
-    //   } else {
-    //     openTime = "휴무";
-    //   }
-    //   return openTime;
-    // }
 </script>
 
 <SearchNav bind:lat bind:lon on:searchDrst={searchDrst} />
@@ -296,33 +242,50 @@
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div class="box_1">
                     <div class="top_actions">
-                    <button
-                        type="button"
-                        class="img_btn"
-                        aria-label="이미지 보기"
-                        on:click|stopPropagation={() => openImagePopup(drst)}
-                    >
-                        <i class="xi-image-o"></i>
-                    </button>
-                    <button
-                        type="button"
-                        class="fav_btn"
-                        aria-label="즐겨찾기"
-                        on:click|stopPropagation={() => openFavPopup(drst)}
+                        <button
+                            type="button"
+                            aria-label="즐겨찾기"
+                            on:click|stopPropagation={() => openFavPopup(drst)}
                         >
-                        <span class={drst.favorite === true ? "mark_on" : "mark_off"}></span>
-                    </button>
+                            {#if drst.favorite}
+                                <i
+                                    class="xi-star"
+                                    style="background-color: white; padding: 0;"
+                                ></i>
+                            {:else}
+                                <i
+                                    class="xi-star-o"
+                                    style="background-color: white; padding: 0;"
+                                ></i>
+                            {/if}
+                        </button>
                     </div>
                     <div class="pspnLst">
                         <p class="name">
                             {drst.shpName}
+                            <button
+                                type="button"
+                                aria-label="이미지 보기"
+                                on:click|stopPropagation={() =>
+                                    openImagePopup(drst)}
+                            >
+                                <i
+                                    class="xi-image-o"
+                                    style="background-color: white; padding: 0 4px;"
+                                ></i>
+                            </button>
                         </p>
 
-                        <p class="dept">{drst.sdtlAddr} | {drst.distance.toFixed(2)} km</p>
+                        <p class="dept">
+                            {drst.sdtlAddr} | {drst.distance.toFixed(2)} km
+                        </p>
                         <p class="time">
                             <span>영업시간</span>
                             {#if drst.isWorkDayOfWeek == "1"}
-                                {drst.startTime.substr(0, 5)} ~ {drst.endTime.substr(0, 5)}
+                                {drst.startTime.substr(0, 5)} ~ {drst.endTime.substr(
+                                    0,
+                                    5,
+                                )}
                             {:else}
                                 휴무중
                             {/if}
@@ -351,117 +314,107 @@
 </section>
 
 {#if favPopUp}
-  <PopUp popUp={favPopUp}>
-    <slot>
-      {favNowYon === "Y" ? "즐겨찾기를 해제하시겠습니까?" : "즐겨찾기에 추가하시겠습니까?"}
-      <button type="button" class="alert_close" on:click={closeFavPopup}>
-        <i class="xi-close-min" />
-      </button>
-    </slot>
+    <PopUp popUp={favPopUp}>
+        <slot>
+            {favNowYon === "Y"
+                ? "즐겨찾기를 해제하시겠습니까?"
+                : "즐겨찾기에 추가하시겠습니까?"}
+            <button type="button" class="alert_close" on:click={closeFavPopup}>
+                <i class="xi-close-min" />
+            </button>
+        </slot>
 
-    <p slot="btns" class="btn_wrap">
-      <button type="button" class="mbtn_n_4" on:click={confirmFav}>예</button>
-      <button type="button" class="mbtn_n_9" on:click={closeFavPopup}>아니오</button>
-    </p>
-  </PopUp>
+        <p slot="btns" class="btn_wrap">
+            <button type="button" class="mbtn_n_4" on:click={confirmFav}
+                >예</button
+            >
+            <button type="button" class="mbtn_n_9" on:click={closeFavPopup}
+                >아니오</button
+            >
+        </p>
+    </PopUp>
 {/if}
 
 {#if imgPopUp}
-  <PopUp popUp={imgPopUp}>
-    <slot>
-      <p>{imgTitle}</p>
-      <button type="button" class="alert_close" on:click={closeImagePopup}>
-        <i class="xi-close-min" />
-      </button>
-    </slot>
+    <PopUp popUp={imgPopUp}>
+        <slot>
+            <p>{imgTitle}</p>
+            <button
+                type="button"
+                class="alert_close"
+                on:click={closeImagePopup}
+            >
+                <i class="xi-close-min" />
+            </button>
+        </slot>
 
-    <div class="img_wrap">
-        {#if imgLoading}
-            <div class="img_loading">로딩중...</div>
-        {:else if imgSrc}
-            <img class="popup_img" src={imgSrc} alt={imgTitle} />
-        {:else}
-            <div class="img_empty">이미지가 없습니다.</div>
-        {/if}
-    </div>
+        <div class="img_wrap">
+            {#if imgLoading}
+                <div class="img_loading">로딩중...</div>
+            {:else if imgSrc}
+                <img class="popup_img" src={imgSrc} alt={imgTitle} />
+            {:else}
+                <div class="img_empty">이미지가 없습니다.</div>
+            {/if}
+        </div>
 
-    <p slot="btns" class="btn_wrap">
-      <button type="button" class="mbtn_n_4" on:click={closeImagePopup}>닫기</button>
-    </p>
-  </PopUp>
+        <p slot="btns" class="btn_wrap">
+            <button type="button" class="mbtn_n_4" on:click={closeImagePopup}
+                >닫기</button
+            >
+        </p>
+    </PopUp>
 {/if}
-
 
 <PopUp popUp={popUp2}>
     <slot>
         <p>처방전이 전송되었습니다.<br />처방 목록 페이지로 이동합니다.</p>
     </slot>
     <p class="btn_wrap" id="btn" slot="btns">
-        <button type="button" class="mbtn_n_4" name="chbtn" id="close" on:click={close}>확인</button>
+        <button
+            type="button"
+            class="mbtn_n_4"
+            name="chbtn"
+            id="close"
+            on:click={close}>확인</button
+        >
     </p>
     <p />
 </PopUp>
 
-
 <style>
-.box_1 { position: relative; }
+    .box_1 {
+        position: relative;
+    }
 
-/* 우측 상단: 이미지 + 즐겨찾기 나란히 */
-.top_actions{
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  display: flex;
-  gap: 10px;
-  z-index: 2;
-}
+    /* 우측 상단: 이미지 + 즐겨찾기 나란히 */
+    .top_actions {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        display: flex;
+        gap: 10px;
+        z-index: 2;
+    }
 
-.img_btn, .fav_btn{
-  width: 35px;
-  height: 35px;
-  border: 0;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
+    .pspnLst {
+        padding-right: 100px;
+    }
 
-/* 이미지 아이콘 크기 */
-.img_btn i{
-  font-size: 28px;
-  color: #0fa5d4;
-}
+    .img_wrap {
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: auto; /* 혹시라도 더 크면 내부 스크롤 */
+    }
 
-.fav_btn .mark_on,
-.fav_btn .mark_off{
-  width: 100%;
-  height: 100%;
-  display: block;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
-}
-
-.pspnLst{
-  padding-right: 100px;
-}
-
-.img_wrap{
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: auto;            /* 혹시라도 더 크면 내부 스크롤 */
-}
-
-.popup_img{
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain;       /* 팝업 안에 “전부 보이게” */
-  display: block;
-}
-
+    .popup_img {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain; /* 팝업 안에 “전부 보이게” */
+        display: block;
+    }
 </style>

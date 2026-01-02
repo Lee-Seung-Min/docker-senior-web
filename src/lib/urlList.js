@@ -242,7 +242,16 @@ export const urlList = {
     //위치기반 서비스 이용약관
     locationTerms: "/mypage/uaPolicy/terms/location",
 
+    //약 대리수령 동의서 목록
     consents: "/mbr/consents",
+
+    //약 대리수령 동의서 작성
     newConsent: "/mbr/newConsent",
+
+    //개인정보 이용 동의서 조회
+    privacyConsent: "/mbr/privacy/consent",
+
+    //개인정보 이용 동의서 작성
+    newPrivacyConsent: "/mbr/privacy/newConsent",
 };
 

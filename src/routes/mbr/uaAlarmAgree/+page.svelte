@@ -150,22 +150,13 @@
         <i class="xi-angle-right"></i>
       </div>
     </div>
-    <div class="box_1">
-      <p class="tit">개인정보 제3자 제공 동의</p>
-      <label>
-        이용자는 개인정보 제3자 제공 동의에 관해 거부할 권리가 있으며, 미동의
-        시에는 모바일 접수/예약 서비스 이용이 불가 합니다.<br />
-        <input
-          type="checkbox"
-          class="type2"
-          disabled
-          bind:checked={person}
-          on:change={() => {
-            updateAgree("2");
-          }}
-        />
-        <span />
-      </label>
+    <div class="box_1 cursor-pointer" on:click={() => gotoPage(urlList.privacyConsent)}>
+      <p class="tit">개인정보 수집 및 이용 동의</p>
+      <div class="flex justify-between">
+        이용자는 개인정보 수집 및 이용에 관해 거부할 권리가 있으며<br />미동의
+        시에는 모바일 접수/예약 서비스 이용이 불가 합니다.
+        <i class="xi-angle-right"></i>
+      </div>
     </div>
   </div>
 </section>
