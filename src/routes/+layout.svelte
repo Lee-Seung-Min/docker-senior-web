@@ -14,10 +14,7 @@
   import "$lib/css/vdoDgns.css";
   import PopUp from "$lib/sub/nav/PopUp.svelte";
   import { page } from "$app/stores";
-  let popUp = false;
-  function xButton() {
-    popUp = false;
-  }
+
   const pathsToCheck = ["/pay/uaGst", "/error"];
   const isMobileNav = pathsToCheck.some((path) => $page.url.pathname.startsWith(path));
 </script>
@@ -39,14 +36,7 @@
         <a href="#left_wrap">전체메뉴 바로가기</a>
         <a href="#content">본문바로가기</a>
       </div>
-      <!--
-    <div class="info">
-      <button class="search" type="button">
-        <div />
-        <p title="검색" />
-      </button>
-    </div>
-    -->
+    
       {#if $isLogin}
         <nav>
           <!-- 각 페이지로 이동시 on 클래스 추가-->
@@ -68,7 +58,6 @@
             }}
             >진료
           </button>
-          <!--이동 가능 버튼-->
           <button
             type="button"
             class={$footCheck == "menu2" ? "menu2 on" : "menu2"}
@@ -77,22 +66,13 @@
               goto(urlList.uaPspnLst);
             }}>처방</button
           >
-          <!--처방 서비스 오픈전-->
-          <!-- <button
-          type="button"
-          class="menu2"
-          on:click={() => {
-            popUp = true;
-          }}>처방</button
-        > -->
           <button
             type="button"
             class={$footCheck == "menu3" ? "menu3 on" : "menu3"}
             on:click={() => {
               $footCheck = "menu3";
               goto(urlList.uaMbrHlthLst);
-            }}>건강관리</button
-          >
+            }}>건강관리</button>
           <button
             type="button"
             class={$footCheck == "menu4" ? "menu4 on" : "menu4"}
@@ -108,13 +88,4 @@
 
     <slot />
   </body>
-  <PopUp {popUp}>
-    서비스 준비중입니다.
-    <button type="button" class="alert_close" on:click={xButton}>
-      <i class="xi-close-min" />
-    </button>
-    <p class="btn_wrap" id="btn" slot="btns">
-      <button type="button" class="mbtn_n_4" id="close" on:click={xButton}>확인</button>
-    </p>
-  </PopUp>
 {/if}

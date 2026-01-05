@@ -6,10 +6,12 @@
     import { urlList } from "$lib/urlList";
     import PopUp from "$lib/sub/nav/PopUp.svelte";
     import { getCall, goMap } from "$lib/js/phoneAction";
+    import { isLogin } from "$lib/store/loginStore";
 
     let popUp = false;
     let popUpWhat = "";
     let callNumber = "02-3487-8585";
+
     function gotoPage(url) {
         goto(url);
     }
@@ -37,9 +39,12 @@
             window.AndroidBridge.logout();
         } else {
             alert("로그아웃 되었습니다.");
+            
             localStorage.setItem("userJwt", "");
             localStorage.setItem("refreshJwt", "");
             localStorage.setItem("logintool", "");
+
+            isLogin.set(false);
             goto(urlList.uaLogin);
         }
     }
@@ -57,7 +62,7 @@
             <span class="menuSpan">회원정보 수정</span>
         </button>
         <button type="button" class="box_2" on:click={() => registerFace()}>
-            <i class="xi-user-o" />
+            <i class="xi-camera-o" />
             <span class="menuSpan">안면인식 등록</span>
         </button>
         <button
@@ -86,8 +91,8 @@
             class="box_2"
             on:click={() => gotoPage(urlList.uaAlarmAgree)}
         >
-            <i class="xi-bell-o" />
-            <span class="menuSpan">알람 및 동의 설정</span>
+            <i class="xi-document" />
+            <span class="menuSpan">동의서 관리</span>
         </button>
         <button
             type="button"
@@ -98,16 +103,6 @@
             ><i class="xi-shield-checked-o" /><span class="menuSpan"
                 >서비스 이용약관</span
             ></button
-        >
-        <button
-            type="button"
-            class="box_2"
-            on:click={() => {
-                popUp = true;
-                popUpWhat = "call";
-            }}
-            ><i class="xi-phone" />
-            <span class="menuSpan">고객센터</span></button
         >
         <button type="button" class="box_2" on:click={() => logout()}>
             <i class="xi-user-o" />

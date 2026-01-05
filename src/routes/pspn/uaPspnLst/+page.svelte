@@ -10,12 +10,20 @@
     import { makeStr } from "$lib/js/makeStr";
     import { postAPI } from "$lib/js/postAPI";
     import { footCheck } from "$lib/store/navStore.js";
-    import { shopUrlAddr, authUrlAddr, adminUrlAddr, mobileUrlAddr } from "$lib/js/urlAddr";
+    import {
+        shopUrlAddr,
+        authUrlAddr,
+        adminUrlAddr,
+        mobileUrlAddr,
+    } from "$lib/js/urlAddr";
     import { drcpPspnId } from "$lib/store/pspnStore.js";
     import { getUserId } from "$lib/js/getUserId";
     import { isLogin } from "$lib/store/loginStore";
     import { updateRefresh } from "$lib/js/updateRefresh";
-    import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
+    import {
+        EventSourcePolyfill,
+        NativeEventSource,
+    } from "event-source-polyfill";
     let pspnLst = [];
     let noMore = false;
     let page = 0;
@@ -98,7 +106,10 @@
     //검색
     async function search() {
         noMore = true;
-        const url = /*urlAddr + "8082*/ mobileUrlAddr + "/v1/pspn/uaPspnLst?page=" + page;
+        const url =
+            /*urlAddr + "8082*/ mobileUrlAddr +
+            "/v1/pspn/uaPspnLst?page=" +
+            page;
         let resData = await getAPI(url);
         pspnLst = resData.resultVO;
         console.log(pspnLst);
@@ -108,7 +119,10 @@
     //페이징처리 데이터 불러오도록
     async function loadMoreData() {
         page += 1;
-        const url = /*urlAddr + "8082*/ mobileUrlAddr + "/v1/pspn/uaPspnLst?page=" + page;
+        const url =
+            /*urlAddr + "8082*/ mobileUrlAddr +
+            "/v1/pspn/uaPspnLst?page=" +
+            page;
         let resData = await getAPI(url);
         let newData = resData.resultVO;
         if (newData.length == 0) {
@@ -120,8 +134,6 @@
 
     //sse 연결
     async function stream() {
-        console.log("connect: ");
-
         const url = mobileUrlAddr + "/v1/sse/connectStream?page=pspn";
         const EventSource = EventSourcePolyfill || NativeEventSource;
         eventSource = new EventSource(url, {
@@ -160,9 +172,16 @@
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div
                 class="box_1"
-                on:click={() => goto(urlList.uaPspnDtl + "?pspnId=" + pspn.pspnId + "&drcpId=" + pspn.drcpId)}
+                on:click={() =>
+                    goto(
+                        urlList.uaPspnDtl +
+                            "?pspnId=" +
+                            pspn.pspnId +
+                            "&drcpId=" +
+                            pspn.drcpId,
+                    )}
             >
-                <div class="pspnLst">
+                <div class="pspnLst cursor-pointer">
                     <p class="name">
                         {pspn.hsptName}{#if pspn.drstName != null}&nbsp;|&nbsp; {pspn.drstName}{/if}
                     </p>
@@ -175,7 +194,8 @@
                         <p class="data">약품배송&nbsp;{pspn.dlvDttm}</p>
                     {/if}
                     <div class="ar box3">
-                        {#if pspn.pspnFaxRcpt == null}
+                        <span class="mbtn_b">보기</span>
+                        <!-- {#if pspn.pspnFaxRcpt == null}
                             <span
                                 class="mbtn_b"
                                 on:click|stopPropagation={() => {
@@ -185,19 +205,20 @@
                                     }
                                 }}>미전송</span
                             >
-                            <!-- {:else if pspn.drcpStat == "결제전"}
-              <span
-                class="mbtn_g"
-                on:click|stopPropagation={() => {
-                  goto(urlList.uaPspnPay + "?drcpId=" + pspn.drcpId);
-                }}>{pspn.drcpStat}</span
-              > -->
+                        {:else if pspn.drcpStat == "결제전"}
+                            <span
+                                class="mbtn_g"
+                                on:click|stopPropagation={() => {
+                                    goto(
+                                        urlList.uaPspnPay +
+                                            "?drcpId=" +
+                                            pspn.drcpId,
+                                    );
+                                }}>{pspn.drcpStat}</span
+                            >
                         {:else}
                             <span class="mbtn_b">전송</span>
-                        {/if}
-                        <!-- {#if pspn.dlvType === "택배" && pspn.dlvDttm != null}
-              <button type="button" class="mbtn_b">택배배송</button>
-            {/if} -->
+                        {/if} -->
                     </div>
                 </div>
             </div>
