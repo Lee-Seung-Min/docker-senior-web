@@ -209,60 +209,20 @@
     {:else if dgns.length != 0}
         <div class="box_1">
             <dl class="info_dl">
-                <dt>진료 방식</dt>
-                {#if dgns.dgnsType == "V" && dgns.dgnsWlkYon == "N"}
-                    <dd>방문 예약</dd>
-                {:else if dgns.dgnsType == "U" && dgns.dgnsWlkYon == "N"}
-                    <dd>비대면 예약</dd>
-                {:else if dgns.dgnsType == "V" && dgns.dgnsWlkYon == "Y"}
-                    <dd>방문 접수</dd>
-                {:else if dgns.dgnsType == "U" && dgns.dgnsWlkYon == "Y"}
-                    <dd>비대면 접수</dd>
-                {/if}
-                <dt>진료 대상</dt>
-                <dd>{dgns.dgnsPatName}</dd>
-                <dt>진료 병원</dt>
-                <dd>{dgns.dgnsShpName}</dd>
-                <dt>진료 항목</dt>
-                <dd>{dgns.dgnsItemName}</dd>
-                <dt>진료과</dt>
-                <dd>{dgns.dgnsDeptName}</dd>
-                <dt>의료진</dt>
-                <dd>{dgns.dgnsDtrName} 선생님</dd>
-                <!-- <dt>진료 상태</dt>
-        {#if dgns.dgnsStat < 3}
-          {#if dgns.dgnsWlkYon == "N"}
-            <dd>예약 확정전</dd>
-          {:else}
-            <dd>접수 확정전</dd>
-          {/if}
-        {:else if dgns.dgnsStat == 3}
-          {#if dgns.dgnsWlkYon == "N"}
-            <dd>예약 확정</dd>
-          {:else}
-            <dd>접수 확정</dd>
-          {/if}
-        {:else if dgns.dgnsStat == 5}
-          <dd>진료중</dd>
-        {:else if dgns.dgnsStat == 7}
-          <dd>진료 완료</dd>
-        {:else if dgns.dgnsStat == 9}
-          <dd>진료 취소</dd>
-          {#if dgns.dgnsCnclRsn != "" && dgns.dgnsCnclRsn != null}
-            <dt>취소사유</dt>
-            <dd>{dgns.dgnsCnclRsn}</dd>
-          {/if}
-        {:else}
-          <dd />
-        {/if} -->
                 {#if dgns.dgnsWlkYon == "N"}
                     <dt>예약 일시</dt>
                 {:else}
                     <dt>접수 일시</dt>
                 {/if}
                 <dd>{dgns.dgnsRsvDttm}</dd>
-                <dt>남김말</dt>
+                <dt>진료 대상</dt>
+                <dd>{dgns.dgnsPatName}</dd>
+                <dt>진료 병원</dt>
+                <dd>{dgns.dgnsShpName}</dd>
+                <dt>진료사유</dt>
                 <dd>{dgns.dgnsMemo}</dd>
+                <dt>진료비</dt>
+                <dd>{dgns.dgnsPay}</dd>
             </dl>
         </div>
         <div class="box_1" style="white-space: pre-wrap">

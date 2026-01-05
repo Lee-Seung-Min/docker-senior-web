@@ -21,7 +21,6 @@
   let mbpChkDttm;
   let mbpDay;
   let mbpTime;
-  let mbpPuls;
   let mbpSbp;
   let mbrDbp;
   let strtDt = "";
@@ -92,9 +91,9 @@
   // draws it.
   //구글차트 그리기
   function drawChart() {
-    let chartData = [["날짜", "수축기", "이완기", "맥박"]];
+    let chartData = [["날짜", "수축기", "이완기"]];
     for (var i of bpList.reverse()) {
-      chartData.push([i.mbpChkDttm, i.mbpSbp, i.mbrDbp, i.mbpPuls]);
+      chartData.push([i.mbpChkDttm, i.mbpSbp, i.mbrDbp]);
     }
     console.log(chartData);
     var data = google.visualization.arrayToDataTable(chartData);
@@ -113,9 +112,6 @@
   async function doWrt() {
     mbpChkDttm = mbpDay + " " + mbpTime;
     if (
-      mbpPuls != undefined &&
-      mbpPuls != "" &&
-      !isNaN(mbpPuls) &&
       mbpSbp != undefined &&
       mbpSbp != "" &&
       !isNaN(mbpSbp) &&
@@ -123,7 +119,7 @@
       mbrDbp != "" &&
       !isNaN(mbrDbp)
     ) {
-      let jsonStr = makeStr({ mbpChkDttm, mbpMbrId: mbrId, mbpPuls, mbpSbp, mbrDbp });
+      let jsonStr = makeStr({ mbpChkDttm, mbpMbrId: mbrId, mbpSbp, mbrDbp });
       let res = await postAPI(/*urlAddr + "8081*/ adminUrlAddr + "/v1/myhealth/addMbrBP", jsonStr, jwt);
       console.log(res);
       if (res.resultVO == true) {
@@ -131,16 +127,12 @@
         endDt = getCurrentDay();
         let monthAgo = getMonthAgo();
         strtDt = chngDateFormat(monthAgo);
-        mbpPuls = "";
         mbpSbp = "";
         mbrDbp = "";
         search();
       }
     } else {
       rstStr = "";
-      if (mbpPuls == undefined || mbpPuls == "" || isNaN(mbpPuls)) {
-        rstStr += "맥박 ";
-      }
       if (mbpSbp == undefined || mbpSbp == "" || isNaN(mbpSbp)) {
         rstStr += "수축기 ";
       }
@@ -212,7 +204,6 @@
               <p>{bp.mbpChkTm}</p>
             </div>
             <p class="tit">{bp.mbpSbp + "/" + bp.mbrDbp}&nbsp;<span class="hlthDay">mmhg</span></p>
-            <p class="tit">{bp.mbpPuls}&nbsp;<span class="hlthDay">bpm</span></p>
             <div class="status">
               <p>{bp.mbpStat}</p>
               &nbsp;
@@ -245,8 +236,6 @@
     <dd><input type="text" style="width: 50%;" bind:value={mbpSbp} />&nbsp;mmhg</dd>
     <dt>이완기</dt>
     <dd><input type="text" style="width: 50%;" bind:value={mbrDbp} />&nbsp;mmhg</dd>
-    <dt>맥박</dt>
-    <dd><input type="text" style="width: 50%;" bind:value={mbpPuls} />&nbsp;bpm</dd>
   </dl>
   <div class="clsbtn" slot="btns_h">
     <div class="btn_wrap">

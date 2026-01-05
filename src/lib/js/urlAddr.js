@@ -33,6 +33,13 @@ export let authUrlAddr = "https://docker.dhdx.kr/senioredudev";
 export let mobileUrlAddr = "https://docker.dhdx.kr/senioredudev";
 export let adminUrlAddr = "https://docker.dhdx.kr/senioredudev";
 
+// 남원 서버용
+// export let apiServerAddr = "http://localhost:9000";
+// export let shopUrlAddr = "http://localhost:9000";
+// export let authUrlAddr = "http://localhost:9000";
+// export let mobileUrlAddr = "http://localhost:9000";
+// export let adminUrlAddr = "http://localhost:9000";
+
 // export let shopUrlAddr = "https://docker.dhdx.kr/senioredu";
 // export let authUrlAddr = "https://docker.dhdx.kr/senioredu";
 // export let mobileUrlAddr = "https://docker.dhdx.kr/senioredu";
