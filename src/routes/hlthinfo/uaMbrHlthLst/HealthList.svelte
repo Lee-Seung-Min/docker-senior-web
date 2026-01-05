@@ -63,7 +63,7 @@
           const url = /*urlAddr + "8081*/ adminUrlAddr + "/v1/myhealth/uaMbrHlthLst";
           let resData = await getAPI(url);
           healthList = resData.resultVO;
-
+          console.log(healthList)
           date = new Date();
           if (healthList.mbpChkDttm != null) {
             mbpDateString = new Date(healthList.mbpChkDttm);
@@ -289,22 +289,6 @@
     </div>
   -->
 <div class="list_box my_info" id="noti">
-  <div class="my_info_item">
-    <label>
-      <div style="display: flex; justify-content: space-between;">
-        <p class="hlthinfo">
-        국가검진 문진표
-        </p>
-        <span style="padding: 3% 0%; font-size: 1rem;">
-          마지막 작성일자:
-        </span>
-      </div>
-      
-    </label>
-    <div class="box_1" style="padding: 10px 20px">
-      <button style="height: 50px; width: 100%; border: 1px solid; border-radius: 10px;" on:click={()=>goto(urlList.uaMbrQuestion)}>일반 검진 작성하기</button>
-    </div>
-  </div>
 
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="my_info_item" on:click={() => goto(urlList.uaMbrBP)}>
