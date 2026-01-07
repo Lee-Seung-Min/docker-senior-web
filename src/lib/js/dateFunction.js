@@ -74,6 +74,12 @@ export function getMonthAgo() {
   return today;
 }
 
+export function get3MonthAgo() {
+  let today = new Date();
+  today.setMonth(today.getMonth() - 3);
+  return today;
+}
+
 //오늘 YYYY-MM-DD 형식
 export function getCurrentDay() {
   let today = new Date();
@@ -106,4 +112,18 @@ export function getIosDay(year, month, day) {
 export function getSecretNumFirstFormat(date) {
   const [year, month, day] = date.split("-");
   return `${year.slice(2)}${month}${day}`;
+}
+
+// YYYY-MM-DD -> YY-MM-DD
+export function toYYMMDD(dateStr) {
+  if (!dateStr) return dateStr;
+
+  const [y, m, d] = dateStr.split("-");
+  if (!y || !m || !d) return dateStr;
+
+  // 이미 yy-mm-dd면 그대로
+  if (y.length === 2) return `${y}-${m}-${d}`;
+
+  // yyyy-mm-dd면 yy-mm-dd
+  return `${y.slice(-2)}-${m}-${d}`;
 }

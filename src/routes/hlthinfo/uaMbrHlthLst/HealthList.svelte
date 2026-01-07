@@ -25,7 +25,7 @@
   let slvlDateString;
   let wgtDateString;
   let tmprDateString;
-  let ibdyDateString;
+  let oxyDateString;
   let popUp = false;
   let popUpWhat = "";
   let mbpChkDttm;
@@ -64,6 +64,7 @@
           let resData = await getAPI(url);
           healthList = resData.resultVO;
 
+          console.log("healthList : ", healthList);
           date = new Date();
           if (healthList.mbpChkDttm != null) {
             mbpDateString = new Date(healthList.mbpChkDttm);
@@ -80,8 +81,8 @@
           if (healthList.tmprChkDttm != null) {
             tmprDateString = getDateString(date, new Date(healthList.tmprChkDttm));
           }
-          if (healthList.ibdyChkDttm != null) {
-            ibdyDateString = getDateString(date, new Date(healthList.ibdyChkDttm));
+          if (healthList.oxyChkDttm != null) {
+            oxyDateString = getDateString(date, new Date(healthList.oxyChkDttm));
           }
         }
       });
@@ -227,10 +228,7 @@
     if (
       tmprData != undefined &&
       tmprData != "" &&
-      !isNaN(tmprData) &&
-      tmprSatu != undefined &&
-      tmprSatu != "" &&
-      !isNaN(tmprSatu)
+      !isNaN(tmprData)
     ) {
       let jsonStr = makeStr({ tmprChkDttm, tmprMbrId: mbrId, tmprData, tmprSatu });
       let res = await postAPI(/*urlAddr + "8081*/ adminUrlAddr + "/v1/myhealth/addMbrTmpr", jsonStr, jwt);
@@ -289,23 +287,6 @@
     </div>
   -->
 <div class="list_box my_info" id="noti">
-  <div class="my_info_item">
-    <label>
-      <div style="display: flex; justify-content: space-between;">
-        <p class="hlthinfo">
-        국가검진 문진표
-        </p>
-        <span style="padding: 3% 0%; font-size: 1rem;">
-          마지막 작성일자:
-        </span>
-      </div>
-      
-    </label>
-    <div class="box_1" style="padding: 10px 20px">
-      <button style="height: 50px; width: 100%; border: 1px solid; border-radius: 10px;" on:click={()=>goto(urlList.uaMbrQuestion)}>일반 검진 작성하기</button>
-    </div>
-  </div>
-
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="my_info_item" on:click={() => goto(urlList.uaMbrBP)}>
     <!-- svelte-ignore a11y-label-has-associated-control -->
@@ -324,28 +305,12 @@
         <p class="tit" style="padding: 10px 0px;">기록해주세요</p>
       {:else}
         {#if healthList.mbpSbp != null}
-          <p class="data">혈압 &nbsp;<span class="tit">{healthList.mbpSbp}/{healthList.mbrDbp}</span>&nbsp;mmhg</p>
-        {/if}
-        {#if healthList.mbpPuls != null}
-          <p class="data">맥박 &nbsp;<span class="tit">{healthList.mbpPuls}</span>&nbsp;bpm</p>
+          <p class="data">혈압 &nbsp;<span class="tit"> {healthList.mbpSbp}/{healthList.mbrDbp}</span>&nbsp;mmhg</p>
         {/if}
         {#if mbpDateString != null}
           <p class="data">{mbpDateString}</p>
         {/if}
       {/if}
-      <div class="ar box1">
-        <button
-          type="button"
-          class="mbtn_n_03"
-          id="show"
-          value="bp"
-          on:click|stopPropagation={() => {
-            popUpWhat = "bp";
-            getCurrentDateTime();
-            popUp = true;
-          }}>기록</button
-        >
-      </div>
     </div>
   </div>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -388,7 +353,7 @@
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label>
       <p class="hlthinfo">
-        체중&nbsp;&nbsp;
+        체중&nbsp;/&nbsp;BMI&nbsp;&nbsp;
         {#if healthList.wgtStat != null}
           <span class="mbtn_b">
             {healthList.wgtStat}
@@ -406,19 +371,6 @@
       {:else}
         <p class="tit" style="padding: 10px 0px;">기록해주세요</p>
       {/if}
-      <div class="ar box1">
-        <button
-          type="button"
-          class="mbtn_n_03"
-          id="show"
-          value="kg"
-          on:click|stopPropagation={() => {
-            popUpWhat = "wgt";
-            getCurrentDateTime();
-            popUp = true;
-          }}>기록</button
-        >
-      </div>
     </div>
   </div>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -427,23 +379,22 @@
     <label>
       <p class="hlthinfo">
         체온&nbsp;/&nbsp;산소포화도&nbsp;&nbsp;
-        <!-- {#if healthList.tmprStat != null}
-              <span class="mbtn_b">{healthList.tmprStat}</span>
-            {/if} -->
+        {#if healthList.tmprStat != null || healthList.oxyStat != null}
+          <span class="mbtn_b">
+            {healthList.tmprStat ?? "-"} / {healthList.oxyStat ?? "-"}
+          </span>
+        {/if}
       </p>
     </label>
     <div class="box_1">
-      {#if healthList.tmprData == 0 && healthList.tmprSatu == null}
+      {#if healthList.tmprData == 0}
         <p class="tit" style="padding: 10px 0px;">기록해주세요</p>
       {:else}
         {#if healthList.tmprData != null}
-          <p class="data">체온 &nbsp;<span class="tit">{healthList.tmprData}</span>&nbsp;°C</p>
+          <p class="data">체온 &nbsp;<span class="tit">{healthList.tmprData}</span>&nbsp;°C</p><p class="data">{tmprDateString}</p>
         {/if}
-        {#if healthList.tmprSatu != null}
-          <p class="data">산소포화도 &nbsp;<span class="tit">{healthList.tmprSatu}</span>&nbsp;%</p>
-        {/if}
-        {#if tmprDateString != null}
-          <p class="data">{tmprDateString}</p>
+        {#if healthList.oxyData != null}
+          <p class="data">산소포화도 &nbsp;<span class="tit">{healthList.oxyData}</span>&nbsp;%</p><p class="data">{oxyDateString}</p>
         {/if}
       {/if}
       <div class="ar box1">
@@ -454,43 +405,6 @@
           value="c"
           on:click|stopPropagation={() => {
             popUpWhat = "temp";
-            getCurrentDateTime();
-            popUp = true;
-          }}>기록</button
-        >
-      </div>
-    </div>
-  </div>
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="my_info_item" on:click={() => goto(urlList.uaMyBMI)}>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label>
-      <p class="hlthinfo">
-        체성분&nbsp;&nbsp;
-        {#if healthList.ibdyStat != null}
-          <span class="mbtn_b">{healthList.ibdyStat}</span>
-        {/if}
-      </p>
-    </label>
-    <div class="box_1">
-      {#if healthList.ibdyBMI == 0 && healthList.ibdyFatr == 0}
-        <p class="tit" style="padding: 10px 0px;">기록해주세요</p>
-      {:else}
-        {#if healthList.ibdyFatr != 0}
-          <p class="data">체지방률 &nbsp;<span class="tit">{healthList.ibdyFatr}</span>&nbsp;%</p>
-        {/if}
-        {#if ibdyDateString != null}
-          <p class="data">{ibdyDateString}</p>
-        {/if}
-      {/if}
-      <div class="ar box1">
-        <button
-          type="button"
-          class="mbtn_n_03"
-          id="show"
-          value="bmi"
-          on:click|stopPropagation={() => {
-            popUpWhat = "BMI";
             getCurrentDateTime();
             popUp = true;
           }}>기록</button
@@ -590,8 +504,6 @@
       <dd><input type="time" bind:value={chkTime} /></dd>
       <dt>체온</dt>
       <dd><input type="text" style="width: 50%;" bind:value={tmprData} />&nbsp;°C</dd>
-      <dt>산소포화도</dt>
-      <dd><input type="text" style="width: 50%;" bind:value={tmprSatu} />&nbsp;%</dd>
     </dl>
     <div class="clsbtn" slot="btns_h">
       <div class="btn_wrap">

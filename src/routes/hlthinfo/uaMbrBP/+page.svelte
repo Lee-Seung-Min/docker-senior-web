@@ -1,82 +1,107 @@
 <script>
   // @ts-nocheck
 
-  import { onMount } from "svelte";
-  import HealthPopUp from "$lib/sub/nav/HealthPopUp.svelte";
+  import { onMount, tick } from "svelte";
   import Nav from "$lib/sub/nav/Nav.svelte";
   import { goto } from "$app/navigation";
-  import { urlList } from "$lib/urlList";
   import { getAPI } from "$lib/js/getAPI";
-  import { makeStr } from "$lib/js/makeStr";
-  import { postAPI } from "$lib/js/postAPI";
-  import { page } from "$app/stores";
-  import { footCheck } from "$lib/store/navStore.js";
-  import { shopUrlAddr, authUrlAddr, adminUrlAddr, mobileUrlAddr } from "$lib/js/urlAddr";
+  import { adminUrlAddr } from "$lib/js/urlAddr";
   import { getUserId } from "$lib/js/getUserId";
   import { isLogin } from "$lib/store/loginStore";
   import { updateRefresh } from "$lib/js/updateRefresh";
-  import PopUp from "$lib/sub/nav/PopUp.svelte";
-  import { chngDateFormat, getCurrentDay, getCurrentTime, getMaxDate, getMonthAgo } from "$lib/js/dateFunction";
-  let popUp = false;
-  let mbpChkDttm;
-  let mbpDay;
-  let mbpTime;
-  let mbpPuls;
-  let mbpSbp;
-  let mbrDbp;
+  import {
+    chngDateFormat,
+    getCurrentDay,
+    get3MonthAgo,
+    toYYMMDD
+  } from "$lib/js/dateFunction";
+
   let strtDt = "";
   let endDt = "";
   let bpList = [];
-  let chart = true;
+  let hasChartData = true;
+
   let mbrId;
   let jwt;
-  let rstStr;
-  let wrtPopUp = false;
+
+  // -------------------------
+  // Google Charts: 1회 로딩
+  // -------------------------
+  let chartsReadyPromise;
+
+  function ensureGoogleChartsLoaded() {
+    if (chartsReadyPromise) return chartsReadyPromise;
+
+    chartsReadyPromise = new Promise((resolve, reject) => {
+      const loadGoogle = () => {
+        try {
+          google.charts.load("current", { packages: ["corechart"], language: "ko" });
+          google.charts.setOnLoadCallback(() => resolve());
+        } catch (e) {
+          reject(e);
+        }
+      };
+
+      const existing = document.querySelector('script[data-google-charts="loader"]');
+      if (existing) {
+        if (window.google?.charts) loadGoogle();
+        else existing.addEventListener("load", loadGoogle, { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.dataset.googleCharts = "loader";
+      script.async = true;
+      script.src = "https://www.gstatic.com/charts/loader.js";
+      script.onload = loadGoogle;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+
+    return chartsReadyPromise;
+  }
+
+  function makeBpListUrl() {
+    const apiStrtDt = toYYMMDD(strtDt);
+    const apiEndDt = toYYMMDD(endDt);
+    return `${adminUrlAddr}/v1/myhealth/getBpList?strtDt=${apiStrtDt}&endDt=${apiEndDt}`;
+  }
+
+  async function reloadBpList() {
+    const resData = await getAPI(makeBpListUrl());
+    bpList = Array.isArray(resData) ? resData : resData?.resultVO ?? [];
+
+    hasChartData = bpList.length !== 0;
+    if (!hasChartData) return;
+
+    await ensureGoogleChartsLoaded();
+    await tick();
+    drawChart();
+  }
+
   onMount(async () => {
     jwt = localStorage.getItem("userJwt");
     const refresh = localStorage.getItem("refreshJwt");
-    try {
-      //사용자 id를 가져온다.
-      await getUserId(jwt).then(async (result) => {
-        //id를 가져온 후의 로직을 작성.
-        if (result != "" && result != undefined && result != "") {
-          endDt = getCurrentDay();
-          let monthAgo = getMonthAgo();
-          strtDt = chngDateFormat(monthAgo);
-          mbrId = result;
-          const url = /*urlAddr + "8081*/ adminUrlAddr + "/v1/myhealth/uaMbrBP?strtDt=" + strtDt;
-          let resData = await getAPI(url);
-          bpList = resData.resultVO;
-          console.log(bpList);
-          const script = document.createElement("script");
-          script.async = true;
-          script.src = "https://www.gstatic.com/charts/loader.js";
-          document.head.appendChild(script);
-          script.onload = () => {
-            // Load the Visualization API and the corechart package.
-            google.charts.load("current", { packages: ["corechart"], language: "ko" });
 
-            if (bpList.length == 0) {
-              chart = false;
-            } else {
-              // Set a callback to run when the Google Visualization API is loaded.
-              google.charts.setOnLoadCallback(drawChart);
-            }
-          };
-        }
-      });
+    try {
+      const result = await getUserId(jwt);
+      if (!result) return;
+
+      mbrId = result;
+
+      endDt = getCurrentDay();
+      strtDt = chngDateFormat(get3MonthAgo());
+
+      await reloadBpList();
     } catch (err) {
-      //에러가 토큰기간만료 코드라면 다시 재발급을 진행
       try {
         if (err.message == "21009") {
           await updateRefresh(refresh);
           location.reload();
         } else {
-          //아니라면 그냥 에러 출력.
           console.error(err);
         }
       } catch (err) {
-        //토큰 재발급 과정에서 에러 발생 시, 다시 로그인하도록 로그인 화면으로 보낸다.
         console.error(err);
         localStorage.setItem("refreshJwt", "");
         localStorage.setItem("userJwt", "");
@@ -87,108 +112,90 @@
     }
   });
 
-  // Callback that creates and populates a data table,
-  // instantiates the pie chart, passes in the data and
-  // draws it.
-  //구글차트 그리기
+  // -------------------------
+  // Chart helpers + draw
+  // -------------------------
+  function mmddFromChkDt(mbpChkDt) {
+    const [, m, d] = mbpChkDt.split("-");
+    return `${m}/${d}`;
+  }
+  function dateSortKey(mbpChkDt) {
+    const [yy, mm, dd] = mbpChkDt.split("-").map(Number);
+    return yy * 10000 + mm * 100 + dd;
+  }
+  function timeSortKey(mbpChkTm) {
+    const [hh, mi] = mbpChkTm.split(":").map(Number);
+    return hh * 100 + mi;
+  }
+
   function drawChart() {
-    let chartData = [["날짜", "수축기", "이완기", "맥박"]];
-    for (var i of bpList.reverse()) {
-      chartData.push([i.mbpChkDttm, i.mbpSbp, i.mbrDbp, i.mbpPuls]);
-    }
-    console.log(chartData);
-    var data = google.visualization.arrayToDataTable(chartData);
+    const byDate = new Map();
 
-    var options = {
+    for (const r of bpList) {
+      const key = r.mbpChkDt;
+
+      if (!byDate.has(key)) {
+        byDate.set(key, {
+          x: mmddFromChkDt(key),
+          t: -1,
+          sbp: null,
+          dbp: null,
+          tm: null,
+          stat: null
+        });
+      }
+
+      const row = byDate.get(key);
+      const t = timeSortKey(r.mbpChkTm);
+
+      if (t >= row.t) {
+        row.t = t;
+        row.sbp = r.mbpSbp != null ? Number(r.mbpSbp) : null;
+        row.dbp = r.mbrDbp != null ? Number(r.mbrDbp) : null;
+        row.tm = r.mbpChkTm;
+        row.stat = r.mbpStat;
+      }
+    }
+
+    const rows = [...byDate.entries()]
+      .sort((a, b) => dateSortKey(a[0]) - dateSortKey(b[0]))
+      .map(([rawDt, v]) => {
+        const tipBase = `${v.x} ${v.tm}\n상태: ${v.stat}`;
+        const sbpTip = v.sbp == null ? null : `${tipBase}\n수축기: ${v.sbp} mmHg`;
+        const dbpTip = v.dbp == null ? null : `${tipBase}\n이완기: ${v.dbp} mmHg`;
+        return [v.x, v.sbp, sbpTip, v.dbp, dbpTip];
+      });
+
+    const data = new google.visualization.DataTable();
+    data.addColumn("string", "날짜");
+    data.addColumn("number", "수축기");
+    data.addColumn({ type: "string", role: "tooltip" });
+    data.addColumn("number", "이완기");
+    data.addColumn({ type: "string", role: "tooltip" });
+    data.addRows(rows);
+
+    const options = {
+      legend: { position: "top" },
       curveType: "function",
-      legend: { position: "bottom" },
-      pointSize: 3,
+      pointSize: 4,
       width: "100%",
+      height: 320,
+      interpolateNulls: true,
+      vAxis: { title: "혈압 (mmHg)" },
+      hAxis: { title: "날짜", slantedText: true, slantedTextAngle: 45 }
     };
-    var chart = new google.visualization.LineChart(document.getElementById("chart_div"));
-    chart.draw(data, options);
+
+    const bpChart = new google.visualization.LineChart(document.getElementById("chart_div"));
+    bpChart.draw(data, options);
   }
 
-  //BP 추가
-  async function doWrt() {
-    mbpChkDttm = mbpDay + " " + mbpTime;
-    if (
-      mbpPuls != undefined &&
-      mbpPuls != "" &&
-      !isNaN(mbpPuls) &&
-      mbpSbp != undefined &&
-      mbpSbp != "" &&
-      !isNaN(mbpSbp) &&
-      mbrDbp != undefined &&
-      mbrDbp != "" &&
-      !isNaN(mbrDbp)
-    ) {
-      let jsonStr = makeStr({ mbpChkDttm, mbpMbrId: mbrId, mbpPuls, mbpSbp, mbrDbp });
-      let res = await postAPI(/*urlAddr + "8081*/ adminUrlAddr + "/v1/myhealth/addMbrBP", jsonStr, jwt);
-      console.log(res);
-      if (res.resultVO == true) {
-        popUp = false;
-        endDt = getCurrentDay();
-        let monthAgo = getMonthAgo();
-        strtDt = chngDateFormat(monthAgo);
-        mbpPuls = "";
-        mbpSbp = "";
-        mbrDbp = "";
-        search();
-      }
-    } else {
-      rstStr = "";
-      if (mbpPuls == undefined || mbpPuls == "" || isNaN(mbpPuls)) {
-        rstStr += "맥박 ";
-      }
-      if (mbpSbp == undefined || mbpSbp == "" || isNaN(mbpSbp)) {
-        rstStr += "수축기 ";
-      }
-      if (mbrDbp == undefined || mbrDbp == "" || isNaN(mbrDbp)) {
-        rstStr += "이완기 ";
-      }
-      wrtPopUp = true;
-    }
-  }
-
-  //기간 검색
   async function search() {
-    const url = /*urlAddr + "8081*/ adminUrlAddr + "/v1/myhealth/uaMbrBP?strtDt=" + strtDt + "&endDt=" + endDt;
-    let resData = await getAPI(url);
-    bpList = resData.resultVO;
-    console.log(bpList);
-    if (bpList.length == 0) {
-      chart = false;
-    } else {
-      chart = true;
-    }
-    google.charts.setOnLoadCallback(drawChart);
-  }
-  function xButton() {
-    popUp = false;
-  }
-  // 현재 날짜와 시간을 가져오는 함수
-  function getCurrentDateTime() {
-    mbpDay = getCurrentDay();
-    mbpTime = getCurrentTime();
+    await reloadBpList();
   }
 </script>
 
 <Nav>혈압</Nav>
 <section class="contents">
-  <div class="setting">
-    <div class="set">
-      <button
-        type="button"
-        class="mbtn_n_03"
-        id="show"
-        on:click={() => {
-          getCurrentDateTime();
-          popUp = true;
-        }}>기록</button
-      >
-    </div>
-  </div>
   <div class="searchhl">
     <div class="hlcal">
       <input type="date" class="datepicker" id="strt_dy" bind:value={strtDt} />
@@ -199,25 +206,29 @@
       <button type="button" class="mbtn_n" on:click={search}>기간 설정</button>
     </div>
   </div>
-  {#if chart}
+
+  {#if hasChartData}
     <div class="chart">
-      <div id="chart_div" style="width:100%; height:30vh" />
+      <div id="chart_div" style="width:100%; height:35vh" />
     </div>
     <div class="list_box" id="noti">
       <div class="box_1">
         {#each bpList as bp}
           <div class="hlthList">
-            <div class="hlthDay">
+            <div class="hlthDay" style="text-align:center; !important">
               <p>{bp.mbpChkDt}</p>
               <p>{bp.mbpChkTm}</p>
             </div>
-            <p class="tit">{bp.mbpSbp + "/" + bp.mbrDbp}&nbsp;<span class="hlthDay">mmhg</span></p>
-            <p class="tit">{bp.mbpPuls}&nbsp;<span class="hlthDay">bpm</span></p>
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+              <p class="tit" style="margin:0;">
+                수축기&nbsp;{bp.mbpSbp ?? "-"}&nbsp;<span class="hlthDay">mmHg</span>
+              </p>
+              <p class="tit" style="margin:0;">
+                이완기&nbsp;{bp.mbrDbp ?? "-"}&nbsp;<span class="hlthDay">mmHg</span>
+              </p>
+            </div>
             <div class="status">
               <p>{bp.mbpStat}</p>
-              &nbsp;
-              <!-- 추후 약 선택 가능하게 된 이후에 추가
-              <p class="pill" /> <div class="noPill" />-->
             </div>
           </div>
         {/each}
@@ -229,58 +240,3 @@
     </div>
   {/if}
 </section>
-<HealthPopUp {popUp}>
-  <slot>
-    <button type="button" class="alert_close" on:click={xButton}><i class="xi-close-min" /></button>
-  </slot>
-  <dl class="info_dl" slot="btns">
-    <!-- 약 컬럼 생성 시 추가
-  <dt>약복용</dt>
-  <dd><input type="checkbox" checked /><span />&nbsp;</dd>-->
-    <dt>날짜</dt>
-    <dd><input type="date" id="wrtDate" bind:value={mbpDay} on:click={getMaxDate} /></dd>
-    <dt>시간</dt>
-    <dd><input type="time" bind:value={mbpTime} /></dd>
-    <dt>수축기</dt>
-    <dd><input type="text" style="width: 50%;" bind:value={mbpSbp} />&nbsp;mmhg</dd>
-    <dt>이완기</dt>
-    <dd><input type="text" style="width: 50%;" bind:value={mbrDbp} />&nbsp;mmhg</dd>
-    <dt>맥박</dt>
-    <dd><input type="text" style="width: 50%;" bind:value={mbpPuls} />&nbsp;bpm</dd>
-  </dl>
-  <div class="clsbtn" slot="btns_h">
-    <div class="btn_wrap">
-      <button type="button" class="mbtn_n_09" name="chbtn" id="close" on:click={xButton}>닫기</button>
-      <button type="button" class="mbtn_n_03" name="chbtn" id="close" on:click={doWrt}>기록하기</button>
-    </div>
-  </div>
-</HealthPopUp>
-{#if wrtPopUp == true}
-  <PopUp {popUp}>
-    <slot>
-      기록에 실패하였습니다.<br />{rstStr} 다시한번 확인해주세요
-      <button
-        type="button"
-        class="alert_close"
-        on:click={() => {
-          wrtPopUp = false;
-        }}
-      >
-        <i class="xi-close-min" />
-      </button>
-    </slot>
-    <div class="clsbtn" slot="btns">
-      <div class="btn_wrap">
-        <button
-          type="button"
-          class="mbtn_n_09"
-          name="chbtn"
-          id="close"
-          on:click={() => {
-            wrtPopUp = false;
-          }}>닫기</button
-        >
-      </div>
-    </div>
-  </PopUp>
-{/if}
