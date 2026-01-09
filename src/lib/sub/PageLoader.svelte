@@ -10,8 +10,7 @@
     <section class="loading-contents">
         <div class="box_1" style="margin: 0 30px">
             <div class="tex" style="text-align: center">
-                <!-- <img src="/lib/img/barodoctorKR_txt.png" alt="barodoctor" style="height: 50px;"/> -->
-                <h2>남원 E-케어</h2>
+                <div style="font-size: 20px; font-weight: 500; padding: 12px 0">남원 e케어</div>
             </div>
             <div class="btn_wrap">
                 <div class="loading" style="text-align: center;">
