@@ -65,14 +65,15 @@
             <i class="xi-camera-o" />
             <span class="menuSpan">안면인식 등록</span>
         </button>
-        <button
+        <!-- 남원시 가족관리 해당 사항 없기 때문에 주석처리, 추후 프론트 페이지 코드 삭제 필요 -->
+        <!-- <button
             type="button"
             class="box_2"
             on:click={() => gotoPage(urlList.uaFamLst)}
         >
             <i class="xi-users-o" />
             <span class="menuSpan">가족관리</span>
-        </button>
+        </button> -->
         <!-- 결제수단 관리는 추후 다른 은행앱이나 페이앱 없이 결제가능한 것 개발 된 후에 개방 예정. 
       배송지 목록 관리는 추후 약배달이 된다면 개방 예정. -->
         <button

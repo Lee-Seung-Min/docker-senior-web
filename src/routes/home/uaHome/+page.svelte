@@ -311,9 +311,6 @@
                                                 type="button"
                                                 class="mbtn_n"
                                                 id="show_reg"
-                                                on:click|stopPropagation={() => {
-                                                    goto(urlList.uaPayMbrDgns + "?dgnsId=" + recDgns.dgnsId);
-                                                }}
                                                 value="결제 하시겠습니까?">결제완료</button
                                             >
                                         {/if}
@@ -398,20 +395,6 @@
             </button>
             <button
                 type="button"
-                class="mad"
-                on:click={() => {
-                    $searchData = "";
-                    goto(urlList.uaDrstSrchKw);
-                }}
-            >
-                <p />
-                <div>약국 검색</div>
-            </button>
-        </div>
-
-        <div class="find">
-            <button
-                type="button"
                 class="hos"
                 on:click={() => {
                     goto(urlList.uaFavHsptLst);
@@ -423,6 +406,17 @@
             </button>
             <button
                 type="button"
+                class="mad"
+                on:click={() => {
+                    $searchData = "";
+                    goto(urlList.uaDrstSrchKw);
+                }}
+            >
+                <p />
+                <div>약국 검색</div>
+            </button>
+            <!-- <button
+                type="button"
                 class="qrCode"
                 on:click={() => {
                     goQr();
@@ -431,7 +425,7 @@
                 <p />
                 <div>QR 코드</div>
                 <div style="font-size: 0.7rem; color:darkgray;line-height: 0.9rem">QR코드로 단골병원을 등록하세요.</div>
-            </button>
+            </button> -->
         </div>
         <br />
         <br />
