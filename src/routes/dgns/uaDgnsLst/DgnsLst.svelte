@@ -422,9 +422,6 @@
                     type="button"
                     class="mbtn_n"
                     id="show_reg"
-                    on:click|stopPropagation={() => {
-                      goto(urlList.uaPayMbrDgns + "?dgnsId=" + dgns.dgnsId);
-                    }}
                     value="결제 하시겠습니까?">결제완료</button
                   >
                 {:else if dgns.dgnsStat == 9}
