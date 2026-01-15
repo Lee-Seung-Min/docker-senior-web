@@ -23,7 +23,7 @@
     function registerFace() {
         if (
             window.AndroidBridge &&
-            typeof window.AndroidBridge.updateToken === "function"
+            typeof window.AndroidBridge.registerFace === "function"
         ) {
             window.AndroidBridge.registerFace();
         } else {
@@ -34,7 +34,7 @@
     function logout() {
         if (
             window.AndroidBridge &&
-            typeof window.AndroidBridge.updateToken === "function"
+            typeof window.AndroidBridge.logout === "function"
         ) {
             window.AndroidBridge.logout();
         } else {

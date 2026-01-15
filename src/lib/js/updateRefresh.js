@@ -16,15 +16,29 @@ async function updateRefresh(refresh = "") {
     } else {
         await getFetch(url, refreshJwt)
             .then((res) => {
-                console.log("updateRefresh : ", res);
-                if (res.ok == false) return goto(urlList.uaLogin);
+                if (res.ok == false) {
+                    if (window.AndroidBridge && typeof window.AndroidBridge.tokenExpired === 'function') {
+                        window.AndroidBridge.tokenExpired();
+                    }
+
+                    return goto(urlList.uaLogin);
+                }
+                
                 return res.json();
             })
             .then((data) => {
-                if (data.status === 22005) return goto(urlList.uaLogin);
+                if (data.status === 22005) {
+                    if (window.AndroidBridge && typeof window.AndroidBridge.tokenExpired === 'function') {
+                        window.AndroidBridge.tokenExpired();
+                    }
+
+                    return goto(urlList.uaLogin);
+                }
+
                 localStorage.setItem("userJwt", data.accessToken);
-                if (window.AndroidBridge && typeof window.AndroidBridge.updateToken === 'function') {
-                    window.AndroidBridge.updateToken(data.accessToken);
+
+                if (window.AndroidBridge && typeof window.AndroidBridge.tokenUpdated === 'function') {
+                    window.AndroidBridge.tokenUpdated(data.accessToken);
                 }
             });
     }
