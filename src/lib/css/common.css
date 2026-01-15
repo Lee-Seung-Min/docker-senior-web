@@ -111,55 +111,6 @@ h3 .mbtn_t {
     color: #12a98e;
 }
 
-.loginDiv {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: white;
-    display: flex; /* 자식 요소들을 정렬하기 위해 flex 사용 */
-    flex-direction: column;
-    justify-content: center; /* 로고를 수직 중앙에 배치 */
-    align-items: center; /* 로고를 수평 중앙에 배치 */
-}
-.loginDiv .btn_wrap {
-    width: 100%;
-    padding: 0 30px;
-}
-.loginDiv .login_title {
-    background-image: url(../img/namwonLogo.jpg);
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    height: 100px;
-    width: 200px;
-}
-
-.bottomSection {
-    position: absolute; /* 화면 기준으로 위치 고정 */
-    bottom: 20px; /* 화면 하단에서의 거리 */
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* 내부 요소(버튼 등)를 가운데 정렬 */
-}
-
-.loginDiv .btn_loginBtn {
-    position: relative;
-    margin: 0 auto;
-    background-color: #fee500;
-    color: #000 !important;
-    width: 100%;
-    max-width: 400px;
-}
-.loginDiv .btn_loginBtn i {
-    position: absolute;
-    left: 18px;
-    font-size: 2em;
-    top: 12px;
-}
-
 .search_main {
     width: auto;
     margin: 0 auto;
