@@ -5,27 +5,26 @@ deploy_dev:
   tags: [web-senior-dev]
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev"'
+
   variables:
     DEPLOY_DIR: "/opt/web-senior"
+    NVM_DIR: "/home/gitlab-runner/.nvm"
 
   script:
-    - export PATH="$HOME/.npm-global/bin:$PATH"
-    - echo "== env ==" && whoami && node -v && npm -v && pm2 -v
+    - . "$NVM_DIR/nvm.sh"
+    - nvm use 20
+
+    - node -v
+    - npm -v
+    - pm2 -v
 
     - echo "== install & build =="
     - npm install
     - npm run build
 
-    - echo "== verify output =="
-    - test -d build
-
-    - echo "== deploy rsync =="
+    - echo "== deploy =="
     - mkdir -p "$DEPLOY_DIR"
     - rsync -a --delete build/ "$DEPLOY_DIR/"
 
-    - echo "== pm2 reload (optional) =="
-    - pm2 list | grep -q "web-senior-dev" && pm2 reload web-senior-dev || echo "pm2 app not found -> skip"
-
   after_script:
-    - export PATH="$HOME/.npm-global/bin:$PATH"
     - ls -al "$DEPLOY_DIR" | head -n 30 || true
