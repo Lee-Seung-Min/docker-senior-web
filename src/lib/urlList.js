@@ -188,6 +188,9 @@ export const urlList = {
     //회원정보수정
     uaMbrInfo: "/mbr/uaMbrInfo",
 
+    //회원 특이사항 메모
+    uaMbrMemo: "/mbr/memo",
+
     //알람 및 동의
     uaAlarmAgree: "/mbr/uaAlarmAgree",
 

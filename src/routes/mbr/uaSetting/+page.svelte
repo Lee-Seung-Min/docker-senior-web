@@ -61,6 +61,14 @@
             <i class="xi-user-o" />
             <span class="menuSpan">회원정보 수정</span>
         </button>
+         <button
+            type="button"
+            class="box_2"
+            on:click={() => gotoPage(urlList.uaMbrMemo)}
+        >
+            <i class="xi-pen-o" />
+            <span class="menuSpan">회원 특이사항</span>
+        </button>
         <button type="button" class="box_2" on:click={() => registerFace()}>
             <i class="xi-camera-o" />
             <span class="menuSpan">안면인식 등록</span>
