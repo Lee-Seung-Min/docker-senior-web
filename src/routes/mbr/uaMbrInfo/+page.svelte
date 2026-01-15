@@ -351,6 +351,78 @@
   </div>
 </section>
 
+
+{#if selectPopUp == "success"}
+  <PopUp {popUp}>
+    <slot>
+      <h2>회원정보가 수정되었습니다.</h2>
+    </slot>
+    <div slot="btns" class="btn_wrap">
+      <button
+        type="button"
+        class="btn_04"
+        name="chbtn"
+        id="visit"
+        on:click={() => {
+          popUp = false;
+          history.back();
+        }}
+      >
+        확인
+      </button>
+    </div>
+  </PopUp>
+{:else if selectPopUp == "error"}
+  <PopUp {popUp}>
+    <slot>
+      <h2>실패</h2>
+      <br />이름을 입력해주세요.
+    </slot>
+    <div slot="btns" class="btn_wrap">
+      <button
+        type="button"
+        class="btn_04"
+        name="chbtn"
+        id="visit"
+        on:click={() => {
+          popUp = false;
+        }}
+      >
+        확인
+      </button>
+    </div>
+  </PopUp>
+{:else if selectPopUp == "fail"}
+  <PopUp {popUp}>
+    <slot>
+      <h2>실패</h2>
+      <br />오류가 발생했습니다. 다시 시도해주세요.
+      <button
+        type="button"
+        class="alert_close"
+        on:click={() => {
+          popUp = false;
+        }}
+      >
+        <i class="xi-close-min" />
+      </button>
+    </slot>
+    <div slot="btns" class="btn_wrap">
+      <button
+        type="button"
+        class="btn_04"
+        name="chbtn"
+        id="visit"
+        on:click={() => {
+          popUp = false;
+        }}
+      >
+        확인
+      </button>
+    </div>
+  </PopUp>
+{/if}
+
 <style>
   :root {
     --bottom-nav-h: 80px; /* 네 탭바 높이에 맞춰 조절 (90~110 사이) */
