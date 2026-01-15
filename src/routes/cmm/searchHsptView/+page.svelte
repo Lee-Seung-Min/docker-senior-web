@@ -287,7 +287,7 @@
                     <span>{hspt.shpName}</span>
                 </div>
                 <p class="dept">{hspt.shpDepts}</p>
-                <p class="time">
+                <p class="time" style="padding-bottom: 6px;">
                     <span>{getDow()}요일</span>
                     {#if hspt.shpWTime == null}
                         휴무
@@ -327,7 +327,7 @@
                 {/if}
                 {#if hspt.shpId == null}
                     <button type="button" class="btn_04" id="show" style="color: black;"
-                        >남원 E-케어가 도입되지 않은 병원입니다.
+                        >남원 e케어가 도입되지 않은 병원입니다.
                     </button>
                 {/if}
             </div>
