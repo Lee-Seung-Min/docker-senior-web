@@ -247,7 +247,7 @@
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                ...(jwt ? { 'bizportal-access-token': jwt } : {}),
+                ...(jwt ? { "bizportal-access-token": jwt } : {}),
             },
             // credentials: "include",
             body: JSON.stringify({
@@ -309,20 +309,6 @@
 <section class="contents">
     <!-- 전자문서(캡처 대상) -->
     <div class="doc-wrap" bind:this={captureRootEl}>
-        <div class="doc-header">
-            <!-- 캡처에는 숨길 액션버튼 -->
-            <div class="doc-actions" data-capture-hide="true">
-                <button class="btn secondary" type="button" on:click={resetAll}
-                    >초기화</button
-                >
-                <button
-                    class="btn primary"
-                    type="button"
-                    on:click={saveAsSingleImage}>작성 완료</button
-                >
-            </div>
-        </div>
-
         <!-- 문서 본문: PDF 서식처럼 박스/라인 구성 -->
         <div class="paper">
             <div class="big-title">약 대리수령 동의서 및 위임장</div>
@@ -563,6 +549,20 @@
                 </div>
             </div>
         </div>
+
+        <div class="doc-header">
+            <!-- 캡처에는 숨길 액션버튼 -->
+            <div class="doc-actions" data-capture-hide="true">
+                <button class="btn secondary" type="button" on:click={resetAll}
+                    >초기화</button
+                >
+                <button
+                    class="btn primary"
+                    type="button"
+                    on:click={saveAsSingleImage}>작성 완료</button
+                >
+            </div>
+        </div>
     </div>
 
     <!-- 서명 모달 (어르신용 크게) -->
@@ -621,15 +621,10 @@
     /* 상단 제목/버튼은 문서 바깥(캡처 시 숨김 처리 가능) */
     .doc-header {
         display: flex;
-        align-items: flex-end;
-        justify-content: end;
+        align-items: center;
+        justify-content: center;
         gap: 12px;
-        margin-bottom: 14px;
-    }
-    .doc-title {
-        font-size: 18px;
-        font-weight: 900;
-        letter-spacing: -0.2px;
+        margin-top: 14px;
     }
     .doc-actions {
         display: flex;
@@ -642,7 +637,7 @@
         cursor: pointer;
         padding: 10px 14px;
         border-radius: 10px;
-        font-weight: 900;
+        font-weight: 500;
         font-size: 14px;
     }
     .btn.secondary {
@@ -724,18 +719,6 @@
     }
     .cell.input input:focus {
         background: rgba(232, 53, 53, 0.08);
-    }
-
-    /* 2열 레이아웃(태블릿 가로에서 PDF처럼 좌우 배치) */
-    .grid2 {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    @media (min-width: 860px) {
-        .grid2 {
-            grid-template-columns: 1fr 1fr;
-        }
     }
 
     /* 문단/설명 */
