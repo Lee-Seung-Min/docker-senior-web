@@ -372,43 +372,62 @@
       {/if}
     </div>
   </div>
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- 체온 -->
+   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="my_info_item" on:click={() => goto(urlList.uaMbrTemp)}>
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label>
       <p class="hlthinfo">
-        체온&nbsp;/&nbsp;산소포화도&nbsp;&nbsp;
-        {#if healthList.tmprStat != null || healthList.oxyStat != null}
-          <span class="mbtn_b">
-            {healthList.tmprStat ?? "-"} / {healthList.oxyStat ?? "-"}
-          </span>
+        체온&nbsp;&nbsp;
+        {#if healthList.tmprStat != null}
+          <span class="mbtn_b">{healthList.tmprStat}</span>
         {/if}
       </p>
     </label>
+
     <div class="box_1">
-      {#if healthList.tmprData == 0}
+      {#if !healthList.tmprData || healthList.tmprData == 0}
         <p class="tit" style="padding: 10px 0px;">기록해주세요</p>
       {:else}
-        {#if healthList.tmprData != null}
-          <p class="data">체온 &nbsp;<span class="tit">{healthList.tmprData}</span>&nbsp;°C</p><p class="data">{tmprDateString}</p>
-        {/if}
-        {#if healthList.oxyData != null}
-          <p class="data">산소포화도 &nbsp;<span class="tit">{healthList.oxyData}</span>&nbsp;%</p><p class="data">{oxyDateString}</p>
-        {/if}
+        <p class="data">체온 &nbsp;<span class="tit">{healthList.tmprData}</span>&nbsp;°C</p>
+        <p class="data">{tmprDateString}</p>
       {/if}
+
       <div class="ar box1">
         <button
           type="button"
           class="mbtn_n_03"
-          id="show"
-          value="c"
           on:click|stopPropagation={() => {
             popUpWhat = "temp";
             getCurrentDateTime();
             popUp = true;
-          }}>기록</button
-        >
+          }}>기록</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 산소포화도 -->
+   <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <div class="my_info_item" on:click={() => goto(urlList.uaMbrOxy)}>
+    <!-- svelte-ignore a11y-label-has-associated-control -->
+    <label>
+      <p class="hlthinfo">
+        산소포화도&nbsp;&nbsp;
+        {#if healthList.oxyStat != null}
+          <span class="mbtn_b">{healthList.oxyStat}</span>
+        {/if}
+      </p>
+    </label>
+
+    <div class="box_1">
+      {#if healthList.oxyData == null || healthList.oxyData == 0}
+        <p class="tit" style="padding: 10px 0px;">기록이 없어요</p>
+      {:else}
+        <p class="data">산소포화도 &nbsp;<span class="tit">{healthList.oxyData}</span>&nbsp;%</p>
+        {#if oxyDateString != null}
+          <p class="data">{oxyDateString}</p>
+        {/if}
+      {/if}
     </div>
   </div>
 </div>

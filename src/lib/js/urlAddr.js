@@ -8,6 +8,7 @@
 // export let authUrlAddr = "http://localhost:9000";
 // export let mobileUrlAddr = "http://localhost:9000";
 // export let adminUrlAddr = "http://localhost:9000";
+// export let apiServerAddr = "http://localhost:9000";
 
 // 이플마인드 개발 서버
 // export let apiServerAddr = "https://docker.dhdx.kr/senior";

@@ -13,6 +13,7 @@
   import { addMapScript, getCurrentPosition } from "$lib/js/mapFunction";
   import { getDow } from "$lib/js/dateFunction";
   import { listUserLocation } from "$lib/store/userLocation";
+  import { tick } from "svelte";
   export let lat = 37.4946012;
   export let lon = 127.027561;
   export let isSearchAllowed = true;
@@ -76,14 +77,16 @@
   }
 
   //병원검색
-  function searchHspt() {
+  async function searchHspt() {
     $searchWhat = "A";
+    await tick();
     dispatch("searchHspt");
     goto(urlList.searchHsptView);
   }
   //약국검색
-  function searchDrst() {
+  async function searchDrst() {
     $searchWhat = "";
+    await tick();
     dispatch("searchDrst");
   }
 

@@ -1,27 +1,17 @@
 <script>
   // @ts-nocheck
   import { onMount, tick } from "svelte";
-  import HealthPopUp from "$lib/sub/nav/HealthPopUp.svelte";
   import Nav from "$lib/sub/nav/Nav.svelte";
   import { goto } from "$app/navigation";
   import { getAPI } from "$lib/js/getAPI";
-  import { makeStr } from "$lib/js/makeStr";
-  import { postAPI } from "$lib/js/postAPI";
   import { adminUrlAddr } from "$lib/js/urlAddr";
   import { getUserId } from "$lib/js/getUserId";
   import { isLogin } from "$lib/store/loginStore";
   import { updateRefresh } from "$lib/js/updateRefresh";
-  import PopUp from "$lib/sub/nav/PopUp.svelte";
-  import { chngDateFormat, getCurrentDay, getCurrentTime, getMaxDate, get3MonthAgo, toYYMMDD } from "$lib/js/dateFunction";
+  import { chngDateFormat, getCurrentDay, get3MonthAgo, toYYMMDD } from "$lib/js/dateFunction";
 
-  let tempList = [];
+  let oxygenList = [];
   let dailyList = [];
-
-  let popUp = false;
-  let tmprChkDttm;
-  let tmprDay;
-  let tmprTime;
-  let tmprData;
 
   let strtDt = "";
   let endDt = "";
@@ -30,9 +20,6 @@
   let jwt;
 
   let chart = true;
-
-  let rstStr = "";
-  let wrtPopUp = false;
 
   // -------------------------
   // utils
@@ -54,63 +41,52 @@
     return `${m}/${d}`;
   }
 
-  function makeTempUrl() {
+  function makeOxyUrl() {
     const apiStrtDt = toYYMMDD(strtDt);
     const apiEndDt = toYYMMDD(endDt);
-    return `${adminUrlAddr}/v1/myhealth/getTemperatureList?strtDt=${apiStrtDt}&endDt=${apiEndDt}`;
+    return `${adminUrlAddr}/v1/myhealth/getOxygenList?strtDt=${apiStrtDt}&endDt=${apiEndDt}`;
   }
 
   // -------------------------
   // normalize
   // -------------------------
-  function normalizeTemp(r) {
-    // "2025-12-31 16:02:20.316" -> key:"25-12-31", tm:"16:02"
-    const dttm = r.tmprChkDttm ?? "";
-    const [datePart = "", timePart = ""] = dttm.split(" ");
-
-    const [yyyy = "", mm = "", dd = ""] = datePart.split("-");
-    const yy = yyyy ? yyyy.slice(2) : "";
-    const key = yy && mm && dd ? `${yy}-${mm}-${dd}` : "";
-
-    const hhmm = timePart ? timePart.slice(0, 5) : "";
-
+  function normalizeOxy(r) {
+    // oxyChkDttm="25-12-31", oxyRegDttm="16:02:00" (가정)
     return {
       ...r,
-      _key: key,
-      _tm: hhmm,
-      tmprChkDt: key,
-      tmprChkTm: hhmm
+      _key: r.oxyChkDttm || "",
+      _tm: (r.oxyRegDttm || "").slice(0, 5)
     };
   }
 
-  // 날짜별 "가장 늦은 시간" 체온 1개만 채택
-  function buildDailyTempList(tempArr = []) {
+  // 날짜별 "가장 늦은 시간" 산소 1개만 채택
+  function buildDailyOxyList(oxyArr = []) {
     const byDate = new Map();
 
     const ensureRow = (key) => {
       if (!byDate.has(key)) {
         byDate.set(key, {
-          key, // "25-12-31"
+          key,
           x: mmddFromYYMMDD(key),
 
-          temp: null,
-          tempT: -1,
-          tempTm: null,
-          tempStat: null
+          oxygen: null,
+          oxyT: -1,
+          oxyTm: null,
+          oxyStat: null
         });
       }
       return byDate.get(key);
     };
 
-    for (const r of tempArr) {
+    for (const r of oxyArr) {
       if (!r?._key) continue;
       const row = ensureRow(r._key);
       const t = timeSortKey(r._tm);
-      if (t >= row.tempT) {
-        row.tempT = t;
-        row.temp = r.tmprData != null && r.tmprData !== "" ? Number(r.tmprData) : null;
-        row.tempTm = r._tm || null;
-        row.tempStat = r.tmprStat ?? null;
+      if (t >= row.oxyT) {
+        row.oxyT = t;
+        row.oxygen = r.oxyData != null && r.oxyData !== "" ? Number(r.oxyData) : null;
+        row.oxyTm = r._tm || null;
+        row.oxyStat = r.oxyStat ?? null;
       }
     }
 
@@ -147,13 +123,16 @@
     const rows = [...(list ?? [])]
       .sort((a, b) => dateSortKeyYYMMDD(a.key) - dateSortKeyYYMMDD(b.key))
       .map((v) => {
-        const tip = v.temp == null ? null : `${v.x} ${v.tempTm ?? ""}\n체온: ${v.temp} °C`;
-        return [v.x, v.temp, tip];
+        const tip =
+          v.oxygen == null
+            ? null
+            : `${v.x} ${v.oxyTm ?? ""}\n산소포화도: ${v.oxygen} %\n상태: ${v.oxyStat ?? "-"}`;
+        return [v.x, v.oxygen, tip];
       });
 
     const data = new google.visualization.DataTable();
     data.addColumn("string", "날짜");
-    data.addColumn("number", "체온(°C)");
+    data.addColumn("number", "산소포화도(%)");
     data.addColumn({ type: "string", role: "tooltip" });
     data.addRows(rows);
 
@@ -165,7 +144,7 @@
       height: 320,
       interpolateNulls: true,
       hAxis: { title: "날짜", slantedText: true, slantedTextAngle: 45 },
-      vAxis: { title: "체온(°C)" }
+      vAxis: { title: "산소포화도(%)" }
     };
 
     const c = new google.visualization.LineChart(document.getElementById("chart_div"));
@@ -173,12 +152,12 @@
   }
 
   async function reload() {
-    const urlTemp = makeTempUrl();
-    const resTemp = await getAPI(urlTemp);
-    const rawTemp = Array.isArray(resTemp) ? resTemp : resTemp?.resultVO ?? [];
+    const urlOxy = makeOxyUrl();
+    const resOxy = await getAPI(urlOxy);
+    const rawOxy = Array.isArray(resOxy) ? resOxy : resOxy?.resultVO ?? [];
 
-    tempList = rawTemp.map(normalizeTemp);
-    dailyList = buildDailyTempList(tempList);
+    oxygenList = rawOxy.map(normalizeOxy);
+    dailyList = buildDailyOxyList(oxygenList);
 
     chart = dailyList.length !== 0;
     if (!chart) return;
@@ -222,68 +201,15 @@
   async function search() {
     await reload();
   }
-
-  async function doWrt() {
-    tmprChkDttm = tmprDay + " " + tmprTime;
-
-    if (tmprData != undefined && tmprData !== "" && !isNaN(tmprData)) {
-      const jsonStr = makeStr({
-        tmprChkDttm,
-        tmprMbrId: mbrId,
-        tmprData
-      });
-
-      const res = await postAPI(adminUrlAddr + "/v1/myhealth/addMbrTmpr", jsonStr, jwt);
-
-      if (res.resultVO == true) {
-        popUp = false;
-
-        endDt = getCurrentDay();
-        strtDt = chngDateFormat(get3MonthAgo());
-
-        tmprData = "";
-
-        await reload();
-      }
-    } else {
-      rstStr = "체온 ";
-      wrtPopUp = true;
-    }
-  }
-
-  function xButton() {
-    popUp = false;
-  }
-
-  function getCurrentDateTime() {
-    tmprDay = getCurrentDay();
-    tmprTime = getCurrentTime();
-  }
 </script>
 
 <svelte:head>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </svelte:head>
 
-<Nav>체온</Nav>
+<Nav>산소포화도</Nav>
 
 <section class="contents">
-  <div class="setting">
-    <div class="set">
-      <button
-        type="button"
-        class="mbtn_n_03"
-        id="show"
-        on:click={() => {
-          getCurrentDateTime();
-          popUp = true;
-        }}
-      >
-        체온기록
-      </button>
-    </div>
-  </div>
-
   <div class="searchhl">
     <div class="hlcal">
       <input type="date" class="datepicker" id="strt_dy" bind:value={strtDt} />
@@ -310,16 +236,16 @@
           <div class="hlthList">
             <div class="hlthDay">
               <p>{row.key}</p>
-              <p>{#if row.tempTm}체온 {row.tempTm}{/if}</p>
+              <p>{#if row.oxyTm}산소 {row.oxyTm}{/if}</p>
             </div>
 
             <p class="tit">
-              체온&nbsp;
-              <span class="tit">{row.temp ?? "-"}</span>&nbsp;<span class="hlthDay">°C</span>
+              산소포화도&nbsp;
+              <span class="tit">{row.oxygen ?? "-"}</span>&nbsp;<span class="hlthDay">%</span>
             </p>
 
             <div class="status">
-              {#if row.tempStat}{row.tempStat}{:else}&nbsp;{/if}
+              {#if row.oxyStat}{row.oxyStat}{:else}&nbsp;{/if}
             </div>
           </div>
         {/each}
@@ -327,45 +253,3 @@
     </div>
   {/if}
 </section>
-
-<HealthPopUp {popUp}>
-  <slot>
-    <button type="button" class="alert_close" on:click={xButton}><i class="xi-close-min" /></button>
-  </slot>
-
-  <dl class="info_dl" slot="btns">
-    <dt>날짜</dt>
-    <dd><input type="date" id="wrtDate" bind:value={tmprDay} on:click={getMaxDate} /></dd>
-
-    <dt>시간</dt>
-    <dd><input type="time" bind:value={tmprTime} /></dd>
-
-    <dt>체온</dt>
-    <dd><input type="text" style="width: 50%;" bind:value={tmprData} />&nbsp;°C</dd>
-  </dl>
-
-  <div class="clsbtn" slot="btns_h">
-    <div class="btn_wrap">
-      <button type="button" class="mbtn_n_09" on:click={xButton}>닫기</button>
-      <button type="button" class="mbtn_n_03" on:click={doWrt}>기록하기</button>
-    </div>
-  </div>
-</HealthPopUp>
-
-{#if wrtPopUp == true}
-  <PopUp {popUp}>
-    <slot>
-      기록에 실패하였습니다.<br />
-      {rstStr}다시한번 확인해주세요
-      <button type="button" class="alert_close" on:click={() => (wrtPopUp = false)}>
-        <i class="xi-close-min" />
-      </button>
-    </slot>
-
-    <div class="clsbtn" slot="btns">
-      <div class="btn_wrap">
-        <button type="button" class="mbtn_n_09" on:click={() => (wrtPopUp = false)}>닫기</button>
-      </div>
-    </div>
-  </PopUp>
-{/if}
