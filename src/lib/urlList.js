@@ -176,11 +176,14 @@ export const urlList = {
     //체중
     uaMbrWgt: "/hlthinfo/uaMbrWgt",
 
-    //체온 / 산소포화도
+    //체온
     uaMbrTemp: "/hlthinfo/uaMbrTemp",
 
     //체성분( BMI/ CM / % )
     uaMyBMI: "/hlthinfo/uaMyBMI",
+
+    //산소포화도
+    uaMbrOxy :"/hlthinfo/uaMbrOxy",
 
     //환경설정 메뉴
     uaSetting: "/mbr/uaSetting",
