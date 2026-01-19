@@ -421,7 +421,7 @@
 
     <div class="box_1">
       {#if healthList.oxyData == null || healthList.oxyData == 0}
-        <p class="tit" style="padding: 10px 0px;">기록이 없어요</p>
+        <p class="tit" style="padding: 10px 0px;">기록해주세요</p>
       {:else}
         <p class="data">산소포화도 &nbsp;<span class="tit">{healthList.oxyData}</span>&nbsp;%</p>
         {#if oxyDateString != null}
