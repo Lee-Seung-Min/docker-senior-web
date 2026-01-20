@@ -266,7 +266,7 @@
                         type="button"
                         class="btn_01"
                         on:click={() => {
-                            goto(urlList.uaVdodgnsWt1 + "?dgnsId=" + dgnsId);
+                            goto(urlList.uaVdodgnsWt + "?dgnsId=" + dgnsId);
                         }}
                         >본인확인
                     </button>
