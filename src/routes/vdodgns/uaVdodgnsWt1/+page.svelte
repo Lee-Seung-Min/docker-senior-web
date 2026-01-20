@@ -121,8 +121,11 @@
                 joinUserType: 1,
                 userId,
                 userName,
-                webRtc: true,
-                platformType: "WINDOWS",
+                webRtc: false,
+                platformType: "ANDROID",
+                // 로컬테스트
+                // webRtc: true,
+                // platformType: "WINDOWS",
             },
             () => {
                 console.log("Boda join 성공");
@@ -159,13 +162,24 @@
             </div>
         </div>
         <div id="tel_control">
-            <button
+            {#if dgnsInfo.dgnsStat=="0"}
+                <button
                 type="button"
                 class="mbtn_s_1 btn_01"
                 on:click={() => {
                     makeConf();
                 }}>본인확인 하러가기</button
             >
+            {:else if dgnsInfo.dgnsStat=="5"}
+            <button
+                type="button"
+                class="mbtn_s_1 btn_01"
+                on:click={() => {
+                    makeConf();
+                }}>진료실 입장</button
+            >
+            {/if}
+            
         </div>
     </div>
 </section>

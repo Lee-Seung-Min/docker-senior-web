@@ -653,7 +653,7 @@
                           a.push("scheme\x3d" + e.client.mobile.scheme),
                           a.push("action\x3dandroid.intent.action.VIEW;category\x3dandroid.intent.category.BROWSABLE"),
                           e.client.mobile.store &&
-                              h.ext.isKakaoTalkApp &&
+                            //   h.ext.isKakaoTalkApp &&
                               a.push("package\x3d" + e.client.mobile.packagename),
                           a.push("end"),
                           this._exec_android(a.join(";"), f, d))
