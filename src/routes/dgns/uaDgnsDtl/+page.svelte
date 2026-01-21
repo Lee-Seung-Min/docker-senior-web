@@ -32,6 +32,7 @@
     let dgnsId;
     let dateString;
     let dgns = [];
+    let pay = "";
     let popUp = false;
     let popUpWhat = "abnomal";
 
@@ -184,6 +185,7 @@
             dgnsLevel = 8;
         }
         dgnsIndex = dgnsProcess.findIndex((item) => item.level == dgnsLevel);
+        dgns.dgnsPay = dgns.dgnsPay.toLocaleString()
         console.log(dgnsIndex);
     }
 </script>
