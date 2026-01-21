@@ -75,21 +75,15 @@
      * 회원 정보를 업데이트하는 함수
      */
     async function updateData() {
-        const url = authUrlAddr + "/v1/member/updateMemberInfo";
-
-        if (name == "") {
-            selectPopUp = "error";
-            popUp = true;
-        }
+        const url = authUrlAddr + "/v1/member/updateMemberSpecific";
 
         const memberData = {
-            mbrId: id,
-            mbrName: name,
             mbrSpecific: specific,
             mbrTakeMedicine: medicine,
         };
 
         const result = await postAPI(url, JSON.stringify(memberData), userJwt);
+        console.log(result);
         if (result == 1) {
             //수정 완료됐다는 창 띄우고 메뉴화면으로 이동
             selectPopUp = "success";
