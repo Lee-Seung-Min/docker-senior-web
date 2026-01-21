@@ -298,6 +298,24 @@
         setTimeout(() => resizeSignatureCanvasAndRestore(), 0);
     }
 
+    function formatPhone(value) {
+        // 1) 숫자만 남기기
+        const numbers = value.replace(/\D/g, "");
+
+        // 2) 길이에 따라 포맷팅
+        if (numbers.length <= 3) {
+            return numbers;
+        } else if (numbers.length <= 7) {
+            return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+        } else {
+            return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+        }
+    }
+
+    function onPhoneInput(e) {
+        agentPhone = formatPhone(e.target.value);
+    }
+
     onMount(() => {
         window.addEventListener("resize", onResize);
         return () => window.removeEventListener("resize", onResize);
@@ -383,10 +401,12 @@
                         <div class="cell label">연락처</div>
                         <div class="cell input">
                             <input
-                                bind:value={agentPhone}
-                                placeholder=""
+                                value={agentPhone}
+                                on:input={onPhoneInput}
+                                placeholder="010-1234-5678"
                                 autocomplete="off"
                                 inputmode="tel"
+                                maxlength="13"
                             />
                         </div>
                     </div>
