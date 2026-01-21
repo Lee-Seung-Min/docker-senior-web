@@ -200,7 +200,6 @@
                 <div
                     class="slide {slideIndex === i ? 'active' : ''}"
                     style="background-image:url({slide.url}); background-color:{slide.bgColor}"
-                    on:click={() => goto(slide.clickUrl)}
                 ></div>
             {/each}
         </div>
