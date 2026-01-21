@@ -309,6 +309,7 @@
       dow.getMinutes();
     let resData = await getAPI(timeUrl); //의사&날짜 별 예약 가능 시간 찾기
     if (!resData.resultVO.dgnsOK) {
+      popUpWhat = "blank" 
       text =
         "현재는 접수 가능한 시간이 아닙니다.<br>다른 의사를 선택하시거나,<br> 진료 가능한 시간에 다시 접수해 주세요.";
       popUp = true;
@@ -320,6 +321,7 @@
     console.log(resData);
   }
   function xButton() {
+    popUpWhat = "";
     popUp = false;
   }
 
@@ -579,7 +581,7 @@
   <PopUp {popUp}>
     <slot>
       {@html text}
-      <button type="button" class="alert_close" on:click={xButton}><i class="xi-close-min" /></button>
+      <button type="button" class="alert_close" style="margin: 6px" on:click={xButton}><i class="xi-close-min" /></button>
     </slot>
     <p slot="btns" class="btn_wrap" id="btn">
       <button type="button" class="mbtn_n_9" name="chbtn" id="close" on:click={xButton}>닫기</button>
