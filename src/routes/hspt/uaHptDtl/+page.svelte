@@ -308,7 +308,7 @@
             >
         {/if}
         {#if shpType == "agnt"}
-            <button type="button" id="res_btn">남원 E-케어가 도입되지 않은 병원입니다. </button>
+            <button type="button" id="res_btn">남원 e케어가 도입되지 않은 병원입니다. </button>
         {/if}
     </div>
     <div class="info_tap">
