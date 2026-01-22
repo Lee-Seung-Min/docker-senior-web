@@ -69,9 +69,8 @@
             mbrName = result.mbrName;
             mbrPhone = result.mbrTel;
             mbrBirthdate = result.mdtlBrth;
-            if (result.mbrAddr && result.mbrAddrDtl) {
-                mbrAddress = `${result.mbrAddr} ${result.mbrAddrDtl}`;
-            }
+            mbrAddress = `${result.mbrAddr} ${result.mbrAddrDtl}`;
+
         } catch (err) {
             console.log(err);
             //에러가 토큰기간만료 코드라면 다시 재발급을 진행

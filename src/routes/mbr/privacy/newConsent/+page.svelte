@@ -253,15 +253,15 @@
       mbrName = result?.mbrName ?? "";
       mbrPhone = result?.mbrTel ?? "";
       mbrBirthdate = result?.mdtlBrth ?? "";
+      mbrAddress = `${result.mbrAddr} ${result.mbrAddrDtl}`;
 
-      if (result?.mbrAddr && result?.mbrAddrDtl) {
-        mbrAddress = `${result.mbrAddr} ${result.mbrAddrDtl}`;
-      } else {
-        mbrAddress = result?.mbrAddr ?? "";
+      if (result.mbrCenterId != 0) {
+        const url = apiServerAddr + "/v1/member/center";
+        const result = await getAPI(url, jwt);
+        centerName = `${result.region} ${result.name}경로당`
       }
-
-      // 필요하면 경로당명도 매핑
-      // centerName = result?.centerName ?? "";
+      
+      
     } catch (err) {
       console.log(err);
       try {
