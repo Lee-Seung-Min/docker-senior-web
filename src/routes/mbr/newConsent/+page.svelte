@@ -70,7 +70,6 @@
             mbrPhone = result.mbrTel;
             mbrBirthdate = result.mdtlBrth;
             mbrAddress = `${result.mbrAddr} ${result.mbrAddrDtl}`;
-
         } catch (err) {
             console.log(err);
             //에러가 토큰기간만료 코드라면 다시 재발급을 진행
@@ -425,12 +424,17 @@
                     <div class="row">
                         <div class="cell label">환자와의 관계*</div>
                         <div class="cell input">
-                            <input
-                                readonly
-                                bind:value={agentRelation}
-                                placeholder=""
-                                autocomplete="off"
-                            />
+                            <div class="select-wrap">
+                                <select bind:value={agentRelation}>
+                                    <option value="방문간호사"
+                                        >방문간호사</option
+                                    >
+                                    <option value="방문간호조무사"
+                                        >방문간호조무사</option
+                                    >
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -738,6 +742,43 @@
     }
     .cell.input input:focus {
         background: rgba(232, 53, 53, 0.08);
+    }
+
+    /* select 래퍼 */
+    .select-wrap {
+        position: relative;
+        width: 100%;
+    }
+
+    /* select 자체 */
+    .select-wrap select {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        padding: 6px 32px 6px 8px; /* 오른쪽 화살표 공간 확보 */
+        background: transparent;
+        appearance: none; /* 기본 화살표 제거 */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        cursor: pointer;
+    }
+
+    /* 포커스 시 문서 강조 */
+    .select-wrap select:focus {
+        background: rgba(232, 53, 53, 0.08);
+    }
+
+    /* ▼ 화살표 */
+    .select-arrow {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none; /* 클릭은 select로 */
+        font-size: 12px;
+        font-weight: 900;
+        color: #111;
     }
 
     /* 문단/설명 */
