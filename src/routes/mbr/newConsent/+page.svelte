@@ -182,7 +182,6 @@
         return null;
     }
 
-    // 최종: 전자문서 전체를 1장 PNG로 캡처 후 업로드
     async function saveAsSingleImage() {
         const err = validateBeforeSave();
         if (err) return alert(err);
@@ -192,7 +191,84 @@
         const prevScrollY = window.scrollY;
         window.scrollTo(0, 0);
 
-        // 캡처 시 버튼 영역 숨김 처리(저장 이미지 깔끔하게)
+        const tempReplacements = [];
+
+        // [A] Select 박스 치환 (기존 해결 방식 유지)
+        const selectEl = captureRootEl.querySelector("select");
+        if (selectEl) {
+            const selectWrap = selectEl.parentElement;
+            const tempText = document.createElement("div");
+            tempText.innerText = agentRelation;
+            tempText.style.cssText =
+                "padding: 6px 8px; font-size: 16px; color: #111;";
+            selectEl.style.display = "none";
+            const arrow = selectWrap.querySelector(".select-arrow");
+            if (arrow) arrow.style.display = "none";
+            selectWrap.appendChild(tempText);
+            tempReplacements.push(() => {
+                selectEl.style.display = "";
+                if (arrow) arrow.style.display = "";
+                tempText.remove();
+            });
+        }
+
+        // [B] 동의/비동의 체크박스를 사진 속 모양(두꺼운 사각형 + 정밀 정중앙 체크)으로 치환
+        const checkLabels = captureRootEl.querySelectorAll(".xe-check");
+        checkLabels.forEach((label) => {
+            const iconContainer = label.querySelector(".icon");
+            const input = label.querySelector("input");
+
+            // 원본 아이콘 일시 숨김
+            if (iconContainer) iconContainer.style.display = "none";
+
+            // 외곽 박스 생성 (사진처럼 굵고 선명하게)
+            const tempBox = document.createElement("div");
+            tempBox.style.cssText = `
+        width: 24px;
+        height: 24px;
+        border: 2px solid #000;
+        margin-right: 8px;
+        background: #fff;
+        flex-shrink: 0;
+        box-sizing: border-box;
+        position: relative; /* 자식(체크표시) 정렬 기준 */
+        display: inline-block;
+        vertical-align: middle;
+    `;
+
+            if (input.checked) {
+                const checkMark = document.createElement("span");
+                checkMark.innerText = "✓";
+
+                // 폰트 고유 여백을 무시하고 박스 정중앙에 고정하는 핵심 스타일
+                checkMark.style.cssText = `
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            /* translate 값을 조절하여 위치 확정: 
+               -50%(가로중앙), -60%(세로중앙 보정 - 꼬리가 길어서 더 들어올림) */
+            transform: translate(-50%, -60%); 
+            font-size: 22px; 
+            font-weight: 900; 
+            color: #000; 
+            line-height: 1;
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-family: sans-serif; /* 폰트 일관성 유지 */
+        `;
+                tempBox.appendChild(checkMark);
+            }
+
+            label.prepend(tempBox);
+
+            tempReplacements.push(() => {
+                if (iconContainer) iconContainer.style.display = "";
+                tempBox.remove();
+            });
+        });
+
+        // 버튼 숨기기
         const hideEls = captureRootEl.querySelectorAll(
             "[data-capture-hide='true']",
         );
@@ -213,7 +289,6 @@
             const ymd = docDate.replace(/\D/g, "").slice(0, 8) || "date";
             const filename = `${ymd}_위임장_${safeName}.png`;
 
-            // savePngToPickedFolder(dataUrl, `${ymd}_위임장_${safeName}.png`);
             const result = await uploadConsentImageToServer(dataUrl, filename, {
                 mbrName,
                 mbrPhone,
@@ -226,13 +301,14 @@
                 consent,
                 docDate,
             });
-            console.log("saved:", result);
+
             alert("위임장 작성이 완료되었습니다.");
             goto("/mbr/consents", { replaceState: true });
         } catch (e) {
             console.error(e);
             alert("저장 중 오류가 발생했습니다.");
         } finally {
+            tempReplacements.forEach((restore) => restore());
             hideEls.forEach((el) => (el.style.display = ""));
             window.scrollTo(0, prevScrollY);
         }
@@ -744,10 +820,20 @@
         background: rgba(232, 53, 53, 0.08);
     }
 
+    /* 캡처 시 추가된 임시 텍스트 스타일 */
+    .temp-capture-text {
+        width: 100%;
+        text-align: left;
+        font-weight: 500;
+    }
+
     /* select 래퍼 */
     .select-wrap {
         position: relative;
         width: 100%;
+        display: flex;
+        align-items: center;
+        min-height: 40px; /* 높이를 명시적으로 주어 텍스트와 select가 교체될 때 덜컹거림 방지 */
     }
 
     /* select 자체 */
