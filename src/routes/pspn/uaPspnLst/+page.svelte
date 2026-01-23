@@ -168,6 +168,7 @@
 <section class="contents">
     <div class="list_box" id="pre_list">
         {#each pspnLst as pspn}
+
             <!-- 처방전 정보 S -->
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div
@@ -186,7 +187,7 @@
                         {pspn.hsptName}{#if pspn.drstName != null}&nbsp;|&nbsp; {pspn.drstName}{/if}
                     </p>
                     <br />
-                    <p class="data">의사처방&nbsp;{pspn.rsvDttm}</p>
+                    <p class="name">처방일자 &nbsp;{pspn.rsvDttm.replace('am', '오전').replace('pm', '오후')}</p>
                     {#if pspn.finDttm != null}
                         <p class="data">약국접수&nbsp;{pspn.finDttm}</p>
                     {/if}
