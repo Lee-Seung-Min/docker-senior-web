@@ -133,7 +133,7 @@
     <div class="box_1">
       <dl class="info_dl" id="pre_view">
         <dt>발급일</dt>
-        <dd>{pspnDtl.pspnRegDttm}</dd>
+        <dd>{pspnDtl.pspnRegDttm.replace('am', '오전').replace('pm', '오후')}</dd>
         <dt>병원명</dt>
         <dd>{pspnDtl.hsptName}</dd>
         <dt>환자명</dt>
