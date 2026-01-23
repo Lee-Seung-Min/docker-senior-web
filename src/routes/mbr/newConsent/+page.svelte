@@ -287,7 +287,7 @@
                 "_",
             );
             const ymd = docDate.replace(/\D/g, "").slice(0, 8) || "date";
-            const filename = `${ymd}_위임장_${safeName}.png`;
+            const filename = `${ymd}_위임장_${safeName}.png`; // 실제로 저장되는 파일이름은 서버에서 수정됨.
 
             const result = await uploadConsentImageToServer(dataUrl, filename, {
                 mbrName,
