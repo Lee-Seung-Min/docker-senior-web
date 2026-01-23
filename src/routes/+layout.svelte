@@ -32,11 +32,6 @@
   <!-- 로그인 했을 때 body에 login 클래스 추가 -->
   <body class="login menu1">
     <header>
-      <div id="skipNavi">
-        <a href="#left_wrap">전체메뉴 바로가기</a>
-        <a href="#content">본문바로가기</a>
-      </div>
-    
       {#if $isLogin}
         <nav>
           <!-- 각 페이지로 이동시 on 클래스 추가-->
