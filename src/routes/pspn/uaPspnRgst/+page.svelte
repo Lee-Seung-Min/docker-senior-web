@@ -136,14 +136,16 @@
         }
     }
 
-    async function sendFax(faxNumber) {
+    async function sendFax(faxNumber, shpId) {
         let newFaxNum = faxNumber.replace(/-/g, "");
         let url =
             shopUrlAddr +
             "/webfax/sendFax?pspnId=" +
             $drcpPspnId +
             "&toNumber=" +
-            newFaxNum;
+            newFaxNum +
+            "&shpId=" +
+            shpId;
 
         try {
             isLoading = true;
@@ -301,7 +303,7 @@
                             class="send-btn"
                             on:click|stopPropagation={() => {
                                 if (drst.isWorkDayOfWeek == "1") {
-                                    sendFax(drst.sdtlFax);
+                                    sendFax(drst.sdtlFax, drst.shpId);
                                 } else {
                                     popUp = true;
                                 }
