@@ -1,7 +1,7 @@
 <script>
   // @ts-nocheck
 
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import PopUp from "$lib/sub/nav/PopUp.svelte";
   import Nav from "$lib/sub/nav/Nav.svelte";
   import { goto } from "$app/navigation";
@@ -24,6 +24,14 @@
   let popUpWhat;
   let popUp=false;
   let faxNumber = '';
+
+    // ObjectURL 메모리 누수 방지
+  function revokeImgUrl() {
+    if (imgUrl && imgUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(imgUrl);
+    }
+  }
+
   onMount(async () => {
     pspnId = $page.url.searchParams.get("pspnId");
     $footCheck = "menu2";
@@ -58,27 +66,36 @@
       }
     }
   });
+
+  onDestroy(() => {
+    revokeImgUrl();
+  });
+
   async function getPhoto() {
+    if (!pspnId) return;
 
     try {
-      const response = await fetch(mobileUrlAddr + '/v1/pspn/getPspnImg?id='+pspnId + '&isDgnsId=false',{
+      const jwt = localStorage.getItem("userJwt");
+      if (!jwt) throw new Error("JWT missing");
+
+      const url = `${mobileUrlAddr}/v1/pspn/getPspnImg?id=${pspnId}&isDgnsId=false`;
+
+      const res = await fetch(url, {
         headers: {
-          "bizportal-access-token": localStorage.getItem("bizportal-access-token")
+          "bizportal-access-token": jwt
         }
-      })
-      let result = await response.json()
-      imgUrl = result.imageUrl
+      });
 
-    } catch(error) {
+      if (!res.ok) throw new Error(`이미지 로드 실패: ${res.status}`);
+      const blob = await res.blob();
 
+      // 기존 URL 정리 후 새 URL 생성
+      revokeImgUrl();
+      imgUrl = URL.createObjectURL(blob);
+    } catch (e) {
+      console.error(e);
+      alert("처방전을 불러오지 못했습니다.");
     }
-
-    const url = shopUrlAddr + "/v1/shop/storage/getPspnImage?pspnId=" + pspnId;
-    let resData = await getFetch(url, localStorage.getItem("userJwt"));
-    let blob = await resData.blob();
-    console.log(blob);
-  imgUrl = URL.createObjectURL(blob);
-  imgBlob = blob; // store blob for upload
   }
   // 확대 함수
   function zoomIn() {
@@ -90,56 +107,6 @@
     scale /= 1.3; // 확대 비율을 30% 감소
   }
 
-  async function sendFTP(){
-    if (!imgBlob) {
-      alert('이미지가 로드되지 않았습니다. 다시 시도하세요.');
-      return;
-    }
-    try {
-      // 파일 이름 생성: pspn_<id>_yyyyMMdd_HHmmss(확장자는 blob.type을 기반으로)
-      const ext = imgBlob.type ? imgBlob.type.split('/').pop() : 'jpg';
-      const now = new Date();
-      const pad = (n) => String(n).padStart(2, '0');
-      const fileName = `pspn_${pspnId}_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.${ext}`;
-
-      // Blob -> File (File 생성자가 일부 브라우저에서 제한적일 수 있지만 대부분 지원)
-      let file;
-      try {
-        file = new File([imgBlob], fileName, { type: imgBlob.type || 'image/jpeg' });
-      } catch (e) {
-        file = imgBlob;
-        file.name = fileName;
-      }
-
-      const form = new FormData();
-      form.append('file', file);
-      form.append('fileName', fileName);
-      form.append('pspnId', pspnId);
-
-      const jwt = localStorage.getItem("userJwt");
-      const endpoint = mobileUrlAddr + '/v1/webfax/sendFax';
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: jwt ? { 'bizportal-access-token': jwt } : {},
-        body: form
-      });
-
-      console.log("mobileUrlAddr + /v1/webfax/sendFax : ", res);
-      
-      const data = await res.json().catch(()=>null);
-      if (data && data.errorType && (data.errorType === 'ALL_SUCCESS_OK' || data.errorType === 'ALL_SUCCESS')) {
-        alert('전송 성공');
-      } else if (data && data.errorType && data.errorType !== 'ALL_SUCCESS_OK') {
-        console.warn('sendFTP response', data);
-        alert('전송 결과: ' + JSON.stringify(data));
-      } else {
-        alert('전송 완료 (서버 응답 파싱 실패)');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('전송 중 오류가 발생했습니다. 콘솔을 확인하세요.');
-    }
-  }
 </script>
 
 <Nav>전자처방전</Nav> 
