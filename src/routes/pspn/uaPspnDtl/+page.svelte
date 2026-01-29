@@ -138,45 +138,17 @@
         <dd>{pspnDtl.hsptName}</dd>
         <dt>환자명</dt>
         <dd>{pspnDtl.ptntName}</dd>
-        {#if drstExist}
-          {#if pspnDtl.drstName != null}
-            <dt>약국명</dt>
-            <dd>{pspnDtl.drstName}</dd>
-          {/if}
-          {#if pspnDtl.shpAddr != null}
-            <dt>약국주소</dt>
-            <dd>
-              {pspnDtl.shpAddr}
-              {#if pspnDtl.shpAddrDtl != null}{pspnDtl.shpAddrDtl}{/if}
-              <button
-                type="button"
-                class="mbtn_t_2b"
-                on:click={() => {
-                  goMap(
-                    "https://map.kakao.com/link/map/" +
-                      pspnDtl.drstName +
-                      "," +
-                      pspnDtl.drcpShpCoorX +
-                      "," +
-                      pspnDtl.drcpShpCoorY
-                  );
-                }}
-              >
-                지도보기
-              </button>
-            </dd>
-          {/if}
-          {#if pspnDtl.drcpShpTel != null}
-            <dt>약국번호</dt>
-            <dd>
-              {pspnDtl.drcpShpTel}
-              <button type="button" class="mbtn_t_1b" on:click={getCall(pspnDtl.drcpShpTel)}>전화하기</button>
-            </dd>
-          {/if}
+        <dt>약국명</dt>
+        {#if pspnDtl.drstName != null}
+          <dd>{pspnDtl.drstName}</dd>
+        {:else}
+          <dd></dd>
         {/if}
-        {#if pspnDtl.drcpPay != "0" && pspnDtl.drcpPay != null && pspnDtl.drcpPay != undefined}
-          <dt>비용</dt>
-          <dd>{pspnDtl.drcpPay}원</dd>
+        <dt>약제비</dt>
+        {#if pspnDtl.drcpPay != null}
+          <dd>{pspnDtl.drcpPay.toLocaleString()}원</dd>
+        {:else}
+          <dd></dd>
         {/if}
         <dt>접수상태</dt>
         {#if pspnDtl.drcpStatText != null}
@@ -190,55 +162,6 @@
           {/if}
           처방전은 14일이내 확인가능합니다. <br />이후 삭제됩니다.
         </dt>
-        <!-- <dt>복약방법</dt>
-      <dd>1일 3회 / 3일 / 식후 30분</dd>
-      <dt>주의사항</dt>
-      <dd>공복에 복약 금지</dd>
-      <dt>복약방법</dt>
-      <dd>처방받은 약 (3종)</dd>
-      <dd class="wide">
-        <table>
-          <tr>
-            <td>유시락스</td>
-            <td>1정</td>
-            <td>3회</td>
-            <td />
-          </tr>
-          <tr>
-            <td>메디락스에스산</td>
-            <td>1정</td>
-            <td>3회</td>
-            <td />
-          </tr>
-          <tr>
-            <td>유시락</td>
-            <td>1정</td>
-            <td>3회</td>
-            <td />
-          </tr>
-        </table>
-      </dd> -->
-        <!-- <dt class="wide">
-        <label class="check">복용알림 <input type="checkbox" name="" class="type2" /><span /></label>
-        <label class="select_data"><input type="text" class="datepicker" /></label>
-        <div class="select_wrap">
-          <select name="" id="">
-            <option value="">아침시간</option>
-            <option value="">09:00</option> -->
-        <!--  시간 간격 확인 요망 -->
-        <!-- </select>
-          <select name="" id="" aria-placeholder="">
-            <option value="">점심시간</option>
-            <option value="">09:00</option> -->
-        <!--  시간 간격 확인 요망 -->
-        <!-- </select>
-          <select name="" id="">
-            <option value="">저녁시간</option>
-            <option value="">09:00</option> -->
-        <!--  시간 간격 확인 요망 -->
-        <!-- </select>
-        </div>
-      </dt> -->
       </dl>
     </div>
 
