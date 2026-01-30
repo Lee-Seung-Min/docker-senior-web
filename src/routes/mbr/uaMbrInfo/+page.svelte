@@ -37,12 +37,25 @@
   let popUp = false;
   let selectPopUp = "";
 
+  //보호자 관련
+  let fmlyName = "";
+  let fmlyTypeCode = "";
+  let fmlyTel = "";
+  let fmlyTypeList = [];
+
   $: centerOptions = [
     { value: "", label: "경로당 선택" },
     ...centerList.map((c) => ({
       value: String(c.id), // 서버 전송용
       label: `${c.region} ${c.name}경로당`,
     })),
+  ];
+
+  $: fmlyTypeOptions = [
+    { value: "", label: "관계 선택" },
+    ...fmlyTypeList
+      .filter((x) => x.useyon === "Y")
+      .map((x) => ({ value: String(x.code), label: x.name })),
   ];
 
   /**
@@ -70,6 +83,9 @@
       add = result.mbrAddr;
       addDetail = result.mbrAddrDtl;
       centerId = result.mbrCenterId ? String(result.mbrCenterId) : "";
+      fmlyName = result.guardianName;
+      fmlyTypeCode = result.guardianRelation;
+      fmlyTel = result.guardianPhoneNumber;
     } catch (err) {
       console.log(err);
 
@@ -92,6 +108,7 @@
         goto(urlList.uaLogin);
       }
     }
+    getFmlyTypeList();
   });
 
   /**
@@ -103,6 +120,7 @@
     if (name == "") {
       selectPopUp = "error";
       popUp = true;
+      return;
     }
 
     const memberData = {
@@ -114,6 +132,9 @@
       mdtlBrth: birthdate,
       mbrGndr: gender,
       mbrCenterId: centerId,
+      guardianName : fmlyName,
+      guardianRelation : fmlyTypeCode,
+      guardianPhoneNumber : fmlyTel
     };
 
     const result = await postAPI(url, JSON.stringify(memberData), userJwt);
@@ -196,6 +217,18 @@
         selectPopUp = "fail";
         popUp = true;
       }
+    }
+  }
+
+  async function getFmlyTypeList() {
+    const url = authUrlAddr + "/nurse/getFmlyTypeList";
+    try {
+      const result = await getAPI(url);
+
+      fmlyTypeList = Array.isArray(result) ? result : (result?.resultVO ?? []);
+    } catch (error) {
+      console.error(error);
+      fmlyTypeList = [];
     }
   }
 </script>
@@ -319,6 +352,44 @@
         title="상세주소"
       />
     </label>
+    <!-- 보호자 -->
+    <div class="fieldRow">
+      <label class="field">
+        <span class="field__label">보호자 명</span>
+        <input
+          class="field__input"
+          type="text"
+          bind:value={fmlyName}
+          maxlength="20"
+          autocomplete="name"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">관계</span>
+        <div class="selectBox">
+          <select class="selectBox__select" bind:value={fmlyTypeCode}>
+            {#each fmlyTypeOptions as opt}
+              <option value={opt.value}>{opt.label}</option>
+            {/each}
+          </select>
+        </div>
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="field__label">보호자 전화번호</span>
+      <input
+        class="field__input"
+        type="tel"
+        bind:value={fmlyTel}
+        maxlength="13"
+        inputmode="numeric"
+        autocomplete="tel"
+        placeholder="예) 010-1234-5678"
+      />
+    </label>
+
 
     <!-- 저장 버튼 -->
     <div class="actions">
@@ -728,4 +799,23 @@
     outline: 2px solid rgba(16, 166, 213, 0.9);
     outline-offset: 2px;
   }
+
+  .fieldRow {
+    margin: 16px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .fieldRow .field {
+    margin: 0; /* 기존 .field margin 제거 */
+  }
+
+  /* 모바일에서는 1열로 */
+  @media (max-width: 420px) {
+    .fieldRow {
+      grid-template-columns: 1fr;
+    }
+  }
+
 </style>
