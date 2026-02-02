@@ -667,6 +667,11 @@
         <div class="box_1">
             병원정보는 건강보험심사평가원에서 제공한 공공데이터(OPEN API 건강보험심사평가원_병원정보서비스 및
             건강보험심사평가원_의료기관별상세정보서비스), 병원에서 제공한 정보로 작성되었습니다.
+            <br/>
+            <div style="margin-top: 8px;">
+                <p>대표자명: {shpDtl.shpContName}</p>
+                <p>홈페이지: {shpDtl.shpRegNo}</p>
+            </div>
         </div>
         <div style="padding:40px" />
     </section>
