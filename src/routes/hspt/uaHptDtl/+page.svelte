@@ -670,7 +670,7 @@
             <br/>
             <div style="margin-top: 8px;">
                 <p>대표자명: {shpDtl.shpContName}</p>
-                <p>홈페이지: {shpDtl.shpRegNo}</p>
+                <p>사업자 등록번호: {shpDtl.shpRegNo}</p>
             </div>
         </div>
         <div style="padding:40px" />
