@@ -695,6 +695,7 @@
                         } else {
                             k.location.href = a;
                             var m = +new Date();
+                            //
                             setTimeout(function () {
                                 1200 > new Date() - m
                                     ? (l.installGuide(h.platformType.Android), c(g.NOT_INSTALLED))
